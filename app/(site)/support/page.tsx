@@ -4,7 +4,7 @@
 import Link from "next/link";
 
 import { Reveal, RevealGroup } from "@/components/site/reveal";
-import { SectionHeading } from "@/components/site/section-heading";
+import { SectionHeading } from "@/components/site/HeroBinboiEngine";
 import { Button } from "@/components/ui/button";
 import { Panel } from "@/components/ui/panel";
 import { SUPPORT_CHANNELS } from "@/constants";
@@ -31,7 +31,7 @@ export default function SupportPage() {
         {SUPPORT_CHANNELS.map((channel) => (
           <Panel
             key={channel.title}
-            className="relative overflow-hidden rounded-[30px] border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.045),rgba(255,255,255,0.015))] p-6"
+            className="surface-panel surface-panel-blue relative overflow-hidden rounded-[30px] border-white/[0.07] p-6"
           >
             <h2 className="text-2xl font-semibold tracking-tight text-foreground">
               {channel.title}
@@ -45,8 +45,7 @@ export default function SupportPage() {
       </RevealGroup>
 
       <Reveal delay={0.08}>
-        <Panel className="relative overflow-hidden rounded-[34px] border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.015))] p-0">
-          <div className="absolute inset-x-0 top-0 h-32 bg-[radial-gradient(circle_at_top,rgba(103,195,151,0.14),transparent_72%)]" />
+        <Panel className="surface-panel surface-panel-dual relative overflow-hidden rounded-[34px] border-white/[0.08] p-0">
           <div className="relative grid gap-6 px-6 py-7 lg:grid-cols-2 lg:px-8">
             <div className="space-y-3">
               <h2 className="text-2xl font-semibold tracking-tight text-foreground">

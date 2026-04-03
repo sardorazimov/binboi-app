@@ -29,7 +29,7 @@ export function UsageChart({ usage }: UsageChartProps) {
           <div key={point.date} className="space-y-3">
             <div className="flex h-40 items-end rounded-3xl border border-white/8 bg-black/25 p-3">
               <div
-                className="w-full rounded-full bg-primary/80"
+                className="w-full rounded-full bg-[linear-gradient(180deg,rgba(255,255,255,0.72),rgba(255,255,255,0.28))]"
                 style={{
                   height: `${Math.max((point.requests / maxRequests) * 100, 6)}%`,
                 }}

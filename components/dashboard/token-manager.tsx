@@ -71,13 +71,13 @@ export function TokenManager({ configured, tokens }: TokenManagerProps) {
             <div
               className={`rounded-2xl border px-4 py-3 text-sm ${
                 state.status === "success"
-                  ? "border-primary/25 bg-primary/10 text-primary-foreground"
+                  ? "border-white/10 bg-white/[0.05] text-foreground"
                   : "border-red-500/20 bg-red-500/10 text-red-100"
               }`}
             >
               <p>{state.message}</p>
               {state.revealedSecret ? (
-                <code className="mt-2 block overflow-x-auto rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-xs text-foreground">
+                <code className="mt-2 block overflow-x-auto rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-xs text-foreground">
                   {state.revealedSecret}
                 </code>
               ) : null}
@@ -103,7 +103,7 @@ export function TokenManager({ configured, tokens }: TokenManagerProps) {
 
         <div className="mt-6 overflow-hidden rounded-[24px] border border-white/8">
           <table className="min-w-full divide-y divide-white/8 text-left text-sm">
-            <thead className="bg-white/[0.03] text-foreground/48">
+            <thead className="bg-white/[0.035] text-foreground/48">
               <tr>
                 <th className="px-4 py-3 font-medium">Name</th>
                 <th className="px-4 py-3 font-medium">Prefix</th>
@@ -115,7 +115,7 @@ export function TokenManager({ configured, tokens }: TokenManagerProps) {
             <tbody className="divide-y divide-white/8">
               {tokens.length ? (
                 tokens.map((token) => (
-                  <tr key={token.id} className="bg-black/10">
+                  <tr key={token.id} className="bg-black/8">
                     <td className="px-4 py-4 text-foreground">{token.name}</td>
                     <td className="px-4 py-4 text-foreground/64">{token.prefix}</td>
                     <td className="px-4 py-4 text-foreground/64">{token.scope}</td>

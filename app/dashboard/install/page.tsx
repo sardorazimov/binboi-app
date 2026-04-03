@@ -34,13 +34,13 @@ function InstallCommandCard({
   return (
     <Panel className="space-y-4 p-6">
       <div className="space-y-2">
-        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-foreground/52">
           {eyebrow}
         </p>
         <h2 className="text-2xl font-semibold tracking-tight text-foreground">{title}</h2>
         <p className="text-sm leading-7 text-foreground/62">{description}</p>
       </div>
-      <pre className="overflow-x-auto rounded-[24px] border border-white/8 bg-black/45 p-5 text-sm leading-7 text-foreground/82">
+      <pre className="overflow-x-auto rounded-[24px] border border-white/8 bg-black/22 p-5 text-sm leading-7 text-foreground/82">
         <code>{command}</code>
       </pre>
     </Panel>
@@ -96,7 +96,7 @@ export default async function InstallPage() {
         <div className="space-y-6">
           <Panel className="space-y-6 p-7">
             <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-foreground/52">
                 Setup sequence
               </p>
               <h2 className="text-2xl font-semibold tracking-tight text-foreground">
@@ -108,7 +108,7 @@ export default async function InstallPage() {
               {INSTALL_STEPS.map((step, index) => (
                 <div
                   key={step.title}
-                  className="rounded-[24px] border border-white/8 bg-black/20 p-5"
+                  className="rounded-[24px] border border-white/8 bg-black/16 p-5"
                 >
                   <p className="text-xs font-semibold uppercase tracking-[0.22em] text-foreground/44">
                     Step {index + 1}
@@ -134,14 +134,14 @@ export default async function InstallPage() {
         <div className="space-y-6">
           <Panel className="space-y-4 p-6">
             <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-foreground/52">
                 Engine status
               </p>
               <h2 className="text-xl font-semibold text-foreground">Current connection</h2>
             </div>
 
             <div className="grid gap-3">
-              <div className="rounded-[22px] border border-white/8 bg-black/20 px-4 py-4">
+              <div className="rounded-[22px] border border-white/8 bg-black/16 px-4 py-4">
                 <p className="text-xs uppercase tracking-[0.2em] text-foreground/42">
                   Engine URL
                 </p>
@@ -149,7 +149,7 @@ export default async function InstallPage() {
                   {engineOverview.engineBaseUrl || "Not configured"}
                 </p>
               </div>
-              <div className="rounded-[22px] border border-white/8 bg-black/20 px-4 py-4">
+              <div className="rounded-[22px] border border-white/8 bg-black/16 px-4 py-4">
                 <p className="text-xs uppercase tracking-[0.2em] text-foreground/42">
                   Health
                 </p>
@@ -159,7 +159,7 @@ export default async function InstallPage() {
                     : "Unavailable"}
                 </p>
               </div>
-              <div className="rounded-[22px] border border-white/8 bg-black/20 px-4 py-4">
+              <div className="rounded-[22px] border border-white/8 bg-black/16 px-4 py-4">
                 <p className="text-xs uppercase tracking-[0.2em] text-foreground/42">
                   Engine tunnels
                 </p>
@@ -172,7 +172,7 @@ export default async function InstallPage() {
 
           <Panel className="space-y-4 p-6">
             <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-foreground/52">
                 Service boundary
               </p>
               <h2 className="text-xl font-semibold text-foreground">
@@ -192,7 +192,7 @@ export default async function InstallPage() {
 
           <Panel className="space-y-4 p-6">
             <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-foreground/52">
                 Expected engine paths
               </p>
               <h2 className="text-xl font-semibold text-foreground">Current adapter contract</h2>

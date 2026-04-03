@@ -1,7 +1,7 @@
 /**
  * Lightweight placeholder for future editorial content without leaving a raw stub route.
  */
-import { SectionHeading } from "@/components/site/section-heading";
+import { SectionHeading } from "@/components/site/HeroBinboiEngine";
 import { Panel } from "@/components/ui/panel";
 import { createMetadata } from "@/lib/metadata";
 

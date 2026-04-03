@@ -1,13 +1,13 @@
 "use client";
 
 /**
- * Reusable visual section that reserves an intentional slot for future product imagery.
+ * Reusable showcase section that keeps imagery slots aligned with the shared product panel language.
  */
 import type { ReactNode } from "react";
 import { motion } from "framer-motion";
 
+import { CardSurface, SectionGlow, SurfaceShell } from "@/components/visual";
 import { Badge } from "@/components/ui/badge";
-import { Panel } from "@/components/ui/panel";
 import { cn } from "@/lib/utils";
 
 type ImageRevealShellProps = {
@@ -21,41 +21,42 @@ type ImageRevealShellProps = {
 
 function ImageRevealFallback() {
   return (
-    <div className="grid h-full gap-5 p-6 sm:p-8">
+    <div className="grid h-full gap-5 p-6 sm:p-7">
       <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.24em] text-foreground/42">
         <span>Visual slot</span>
         <span>Ready for asset</span>
       </div>
 
       <div className="grid flex-1 gap-4 md:grid-cols-[1.15fr_0.85fr]">
-        <div className="rounded-[26px] border border-white/8 bg-black/24 p-5">
+        <CardSurface accent="blue" className="rounded-[26px]">
           <div className="h-3 w-24 rounded-full bg-white/8" />
           <div className="mt-5 grid gap-3">
-            <div className="h-[4.5rem] rounded-[20px] border border-primary/16 bg-primary/8" />
+            <CardSurface strength="strong" className="rounded-[20px]" />
             <div className="grid gap-3 sm:grid-cols-2">
-              <div className="h-24 rounded-[20px] border border-white/8 bg-white/5" />
-              <div className="h-24 rounded-[20px] border border-white/8 bg-white/5" />
+              <CardSurface className="rounded-[20px]" />
+              <CardSurface className="rounded-[20px]" />
             </div>
           </div>
-        </div>
+        </CardSurface>
 
         <div className="grid gap-4">
-          <div className="rounded-[24px] border border-white/8 bg-white/5 p-5">
+          <CardSurface className="rounded-[24px]">
             <div className="h-3 w-[4.5rem] rounded-full bg-white/8" />
             <div className="mt-4 space-y-3">
               <div className="h-10 rounded-[16px] bg-white/6" />
               <div className="h-10 rounded-[16px] bg-white/6" />
-              <div className="h-10 rounded-[16px] bg-primary/10" />
+              <div className="h-10 rounded-[16px] bg-white/[0.08]" />
             </div>
-          </div>
-          <div className="rounded-[24px] border border-white/8 bg-[radial-gradient(circle_at_top,rgba(103,195,151,0.12),transparent_60%)] p-5">
+          </CardSurface>
+          {/* Only the local media placeholder keeps tiny status accents; the panel itself stays neutral. */}
+          <CardSurface className="rounded-[24px]">
             <div className="flex gap-2">
               <span className="h-2.5 w-2.5 rounded-full bg-primary" />
+              <span className="h-2.5 w-2.5 rounded-full bg-[#ff9f5a]/70" />
               <span className="h-2.5 w-2.5 rounded-full bg-white/18" />
-              <span className="h-2.5 w-2.5 rounded-full bg-white/12" />
             </div>
-            <div className="mt-5 h-[7.5rem] rounded-[20px] border border-white/8 bg-black/26" />
-          </div>
+            <CardSurface strength="strong" className="mt-5 rounded-[20px]" />
+          </CardSurface>
         </div>
       </div>
     </div>
@@ -71,16 +72,17 @@ export function ImageRevealShell({
   title,
 }: ImageRevealShellProps) {
   return (
-    <Panel
+    <SurfaceShell
+      glow="blue"
       className={cn(
-        "relative overflow-hidden rounded-[36px] border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.015))] p-0",
+        "relative overflow-hidden rounded-[36px] p-0",
         className,
       )}
     >
-      <div className="absolute inset-x-0 top-0 h-40 bg-[radial-gradient(circle_at_top,rgba(103,195,151,0.18),transparent_70%)]" />
-      <div className="relative grid gap-6 lg:grid-cols-[0.88fr_1.12fr] lg:gap-0">
-        <div className="flex flex-col justify-between gap-8 p-6 sm:p-8 lg:p-10">
-          <div className="space-y-5">
+      {/* The section shell gets a cool accent only; the warmer note stays inside the media stage. */}
+      <div className="relative grid gap-6 lg:grid-cols-[0.82fr_1.18fr] lg:items-start">
+        <div className="flex flex-col gap-6 p-6 sm:p-8 lg:p-10">
+          <div className="space-y-5 lg:max-w-xl">
             <Badge>{eyebrow}</Badge>
             <div className="space-y-3">
               <h2 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
@@ -91,24 +93,26 @@ export function ImageRevealShell({
           </div>
 
           {detail ? (
-            <p className="max-w-md text-sm leading-7 text-foreground/52">{detail}</p>
+            <CardSurface className="rounded-[24px] px-5 py-4">
+              <p className="text-sm leading-7 text-foreground/54">{detail}</p>
+            </CardSurface>
           ) : null}
         </div>
 
-        <div className="p-4 pt-0 sm:p-6 sm:pt-0 lg:p-8 lg:pl-0">
+        <div className="p-4 pt-0 sm:p-6 sm:pt-0 lg:p-6 lg:pl-0 lg:pr-6 lg:pb-6">
           <motion.div
-            className="relative min-h-[320px] overflow-hidden rounded-[32px] border border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(0,0,0,0.2))]"
+            className="surface-panel-strong relative min-h-[280px] overflow-hidden rounded-[32px] border border-white/[0.08] lg:min-h-[520px]"
             initial={{ opacity: 0, clipPath: "inset(0 0 12% 0 round 32px)", scale: 0.985 }}
             whileInView={{ opacity: 1, clipPath: "inset(0 0 0% 0 round 32px)", scale: 1 }}
             viewport={{ once: true, amount: 0.28 }}
             transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
           >
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(103,195,151,0.14),transparent_42%),linear-gradient(180deg,rgba(255,255,255,0.04),rgba(0,0,0,0.18))]" />
+            <SectionGlow tone="dual" />
+            {/* Dual-tone lighting is limited to the media stage so the full section stays readable. */}
             <div className="relative h-full">{children ?? <ImageRevealFallback />}</div>
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/55 to-transparent" />
           </motion.div>
         </div>
       </div>
-    </Panel>
+    </SurfaceShell>
   );
 }

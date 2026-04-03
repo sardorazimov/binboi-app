@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Sidebar navigation for the authenticated dashboard surfaces.
+ * Sidebar navigation for dashboard surfaces using the shared rail and active-nav treatments.
  */
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -22,33 +22,38 @@ export function DashboardSidebar({ userEmail }: DashboardSidebarProps) {
   const pathname = usePathname();
 
   return (
-    <aside className="flex h-full min-h-full flex-col rounded-[30px] border border-white/10 bg-white/[0.03] p-4">
-      <div className="mb-4 flex items-center justify-between px-2">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
-            Workspace
-          </p>
-          <p className="mt-2 text-sm text-foreground/70">Binboi Cloud</p>
+    <aside className="surface-rail flex h-full min-h-0 flex-col overflow-hidden">
+      <div className="border-b border-white/[0.07] px-6 py-7">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-foreground/48">
+              Workspace
+            </p>
+            <p className="mt-2 text-sm text-foreground/70">Binboi Cloud</p>
+          </div>
+          <Badge className="text-foreground/72">Live</Badge>
         </div>
-        <Badge className="text-primary">Live</Badge>
       </div>
 
-      <nav className="flex-1 space-y-1">
-        {DASHBOARD_LINKS.map((link) => (
-          <Link
-            key={link.href}
-            href={link.href}
-            className={cn(
-              "block rounded-2xl px-4 py-3 text-sm text-foreground/66 transition-colors hover:bg-white/6 hover:text-foreground",
-              isActive(pathname, link.href) && "bg-white/8 text-foreground",
-            )}
-          >
-            {link.label}
-          </Link>
-        ))}
-      </nav>
+      <div className="flex-1 overflow-y-auto px-5 py-5" data-native-scroll="true">
+        <nav className="space-y-1">
+          {DASHBOARD_LINKS.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={cn(
+                "block rounded-2xl px-4 py-3 text-sm text-foreground/68 transition-colors hover:bg-white/[0.03] hover:text-foreground",
+                isActive(pathname, link.href) &&
+                  "surface-nav-active border text-foreground",
+              )}
+            >
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+      </div>
 
-      <div className="mt-6 rounded-[24px] border border-white/8 bg-black/20 px-4 py-4">
+      <div className="border-t border-white/[0.07] bg-white/[0.015] px-6 py-5">
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-foreground/42">
           Signed in
         </p>

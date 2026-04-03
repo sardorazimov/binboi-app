@@ -1,17 +1,35 @@
-/**
- * Documentation layout with persistent navigation and readable article width.
- */
-import type { ReactNode } from "react";
+"use client";
 
-import { DocsSidebar } from "@/components/site/docs-sidebar";
+import React, { useState } from "react";
 
-export default function DocsLayout({ children }: { children: ReactNode }) {
+import { motion } from "framer-motion";
+import { Sidebar } from "../../../components/docs/docs-sidebar";
+
+export default function DashboardShell({ children }: { children: React.ReactNode }) {
+  const [collapsed, setCollapsed] = useState(false);
+  const theme = "dark"; // İstersen bunu da state yapabilirsin
+
   return (
-    <div className=" min-h-screen w-full">
-      <div className="w-64 h-full">
-        <DocsSidebar />
-      </div>
-      <div className="lg:pl-72 ">{children}</div>
+    <div className={`min-h-screen ${theme === "dark" ? "bg-[#000000] text-white" : "bg-gray-50 text-black"} transition-colors duration-300`}>
+      {/* 1. Sidebar */}
+      <Sidebar 
+        collapsed={collapsed} 
+        setCollapsed={setCollapsed} 
+        theme={theme} 
+      />
+
+      {/* 2. Main Content Area */}
+      <motion.main
+        animate={{ 
+          paddingLeft: collapsed ? "64px" : "240px" 
+        }}
+        transition={{ type: "spring", stiffness: 320, damping: 32 }}
+        className="min-h-screen w-full mt-18"
+      >
+        <div className="p-8">
+          {children}
+        </div>
+      </motion.main>
     </div>
   );
 }

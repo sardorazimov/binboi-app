@@ -41,7 +41,7 @@ export function BillingCheckoutCard({ configured }: { configured: boolean }) {
           <div
             className={`rounded-2xl border px-4 py-3 text-sm ${
               state.status === "success"
-                ? "border-primary/25 bg-primary/10 text-primary-foreground"
+                ? "border-white/10 bg-white/[0.05] text-foreground"
                 : "border-red-500/20 bg-red-500/10 text-red-100"
             }`}
           >

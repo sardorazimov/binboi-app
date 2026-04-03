@@ -15,10 +15,11 @@ const buttonVariants = cva(
     variants: {
       variant: {
         primary:
-          "bg-primary text-primary-foreground shadow-[0_18px_48px_-24px_rgba(80,182,140,0.85)] hover:bg-primary/90",
+          /* Primary CTA keeps the reference-style blue/orange edge energy but only around the button frame. */
+          "border border-white/12 bg-[linear-gradient(180deg,rgba(17,20,27,0.98),rgba(10,12,16,0.97))] text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_0_0_1px_rgba(76,121,255,0.12),0_16px_34px_-24px_rgba(255,143,77,0.46)] hover:border-white/16 hover:bg-[linear-gradient(180deg,rgba(20,24,31,0.98),rgba(12,14,18,0.97))] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_0_0_1px_rgba(76,121,255,0.18),0_18px_36px_-24px_rgba(255,143,77,0.56)]",
         secondary:
-          "border border-white/12 bg-white/5 text-foreground hover:bg-white/10",
-        ghost: "text-foreground/80 hover:bg-white/6 hover:text-foreground",
+          "border border-white/10 bg-[linear-gradient(180deg,rgba(16,18,24,0.92),rgba(10,12,16,0.94))] text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] hover:border-white/14 hover:bg-[linear-gradient(180deg,rgba(18,21,28,0.92),rgba(12,14,18,0.94))]",
+        ghost: "text-foreground/78 hover:bg-white/[0.055] hover:text-foreground",
         danger:
           "border border-red-500/30 bg-red-500/10 text-red-100 hover:bg-red-500/20",
       },

@@ -1,5 +1,5 @@
 /**
- * Compact metric card for dashboard summary pages.
+ * Compact metric card that shares the same blue-led panel treatment as the public product cards.
  */
 import { Panel } from "@/components/ui/panel";
 
@@ -11,7 +11,7 @@ type MetricCardProps = {
 
 export function MetricCard({ detail, label, value }: MetricCardProps) {
   return (
-    <Panel className="space-y-3">
+    <Panel className="surface-panel surface-panel-blue space-y-3 border-white/[0.07]">
       <p className="text-xs font-semibold uppercase tracking-[0.22em] text-foreground/45">
         {label}
       </p>

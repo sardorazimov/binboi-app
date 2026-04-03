@@ -5,7 +5,8 @@ import Link from "next/link";
 
 import { PricingPlanCard } from "@/components/site/pricing-plan-card";
 import { Reveal, RevealGroup } from "@/components/site/reveal";
-import { SectionHeading } from "@/components/site/section-heading";
+import { SectionHeading } from "@/components/site/HeroBinboiEngine";
+import { CardSurface, CtaBand, SurfaceShell } from "@/components/visual";
 import { Button } from "@/components/ui/button";
 import { Panel } from "@/components/ui/panel";
 import { PRICING_FAQS, PRICING_PLANS } from "@/constants";
@@ -51,12 +52,11 @@ export default function PricingPage() {
         </Reveal>
 
         <Reveal delay={0.08}>
-          <Panel className="relative overflow-hidden rounded-[34px] border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.055),rgba(255,255,255,0.015))] p-0">
-            <div className="absolute inset-x-0 top-0 h-36 bg-[radial-gradient(circle_at_top,rgba(103,195,151,0.16),transparent_72%)]" />
+          <SurfaceShell glow="blue" className="rounded-[34px] p-0">
             <div className="relative grid gap-4 p-6 sm:grid-cols-3 sm:p-7">
               {PRICING_PRINCIPLES.map((principle) => (
                 <div key={principle.title} className="space-y-3">
-                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-foreground/54">
                     {principle.title}
                   </p>
                   <p className="text-sm leading-7 text-foreground/62">
@@ -65,7 +65,7 @@ export default function PricingPage() {
                 </div>
               ))}
             </div>
-          </Panel>
+          </SurfaceShell>
         </Reveal>
       </section>
 
@@ -76,10 +76,10 @@ export default function PricingPage() {
       </RevealGroup>
 
       <Reveal>
-        <Panel className="overflow-hidden rounded-[36px] border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.015))] p-0">
+        <Panel className="surface-panel surface-panel-blue overflow-hidden rounded-[36px] border-white/[0.08] p-0">
           <div className="grid gap-6 border-b border-white/8 px-6 py-6 lg:grid-cols-[0.88fr_1.12fr] lg:px-8">
             <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-foreground/54">
                 Billing clarity
               </p>
               <h2 className="text-2xl font-semibold text-foreground">
@@ -95,24 +95,20 @@ export default function PricingPage() {
 
           <RevealGroup className="grid gap-4 px-6 py-6 lg:grid-cols-3 lg:px-8">
             {PRICING_FAQS.map((faq) => (
-              <div
-                key={faq.question}
-                className="rounded-[26px] border border-white/8 bg-black/22 p-5"
-              >
+              <CardSurface key={faq.question} className="rounded-[26px]">
                 <h3 className="text-lg font-semibold text-foreground">{faq.question}</h3>
                 <p className="mt-3 text-sm leading-7 text-foreground/62">{faq.answer}</p>
-              </div>
+              </CardSurface>
             ))}
           </RevealGroup>
         </Panel>
       </Reveal>
 
       <Reveal delay={0.08}>
-        <Panel className="relative overflow-hidden rounded-[36px] border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.055),rgba(255,255,255,0.015))] p-0">
-          <div className="absolute inset-x-0 top-0 h-40 bg-[radial-gradient(circle_at_top,rgba(103,195,151,0.16),transparent_72%)]" />
-          <div className="relative grid gap-8 px-6 py-8 sm:px-8 sm:py-10 lg:grid-cols-[1.04fr_0.96fr] lg:px-10">
-            <div className="space-y-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+        <CtaBand
+          lead={
+            <>
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-foreground/52">
                 Need help choosing a plan
               </p>
               <h2 className="max-w-2xl text-3xl font-semibold tracking-tight text-foreground">
@@ -131,23 +127,24 @@ export default function PricingPage() {
                   <Link href="/support">Talk to support</Link>
                 </Button>
               </div>
-            </div>
-
-            <div className="rounded-[30px] border border-white/8 bg-black/24 p-5 sm:p-6">
+            </>
+          }
+          support={
+            <CardSurface strength="strong" className="rounded-[30px]">
               <div className="space-y-4">
                 {PRICING_CTA_POINTS.map((point) => (
                   <div
                     key={point}
-                    className="flex gap-3 rounded-[22px] border border-white/8 bg-white/5 px-4 py-4"
+                    className="flex gap-3 rounded-[22px] border border-white/[0.07] bg-white/[0.025] px-4 py-4"
                   >
-                    <span className="mt-2 h-1.5 w-1.5 rounded-full bg-primary" />
+                    <span className="mt-2 h-1.5 w-1.5 rounded-full bg-[linear-gradient(180deg,rgba(76,122,255,1),rgba(255,135,74,0.92))]" />
                     <p className="text-sm leading-7 text-foreground/62">{point}</p>
                   </div>
                 ))}
               </div>
-            </div>
-          </div>
-        </Panel>
+            </CardSurface>
+          }
+        />
       </Reveal>
     </div>
   );

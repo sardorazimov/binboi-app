@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Panel } from "@/components/ui/panel";
 import { DOCS_ARTICLES } from "@/constants";
 import { createMetadata } from "@/lib/metadata";
+import { SiteFooter } from "../../../../components/site/site-footer";
 
 type DocsArticlePageProps = {
   params: Promise<{
@@ -58,7 +59,7 @@ export default async function DocsArticlePage({ params }: DocsArticlePageProps) 
 
   return (
     <article className="space-y-8">
-      <header className="space-y-4">
+      <header className="surface-panel surface-panel-blue space-y-4 rounded-[32px] border border-white/[0.08] px-6 py-6 sm:px-8 sm:py-8">
         <Badge>{article.section}</Badge>
         <div className="space-y-3">
           <h1 className="text-4xl font-semibold tracking-tight text-foreground">
@@ -73,7 +74,10 @@ export default async function DocsArticlePage({ params }: DocsArticlePageProps) 
 
       <div className="space-y-6">
         {article.blocks.map((block) => (
-          <Panel key={block.heading} className="space-y-4">
+          <Panel
+            key={block.heading}
+            className="surface-panel surface-panel-blue space-y-4 border-white/[0.07]"
+          >
             <h2 className="text-2xl font-semibold tracking-tight text-foreground">
               {block.heading}
             </h2>
@@ -82,14 +86,14 @@ export default async function DocsArticlePage({ params }: DocsArticlePageProps) 
               <ul className="space-y-3 text-sm leading-7 text-foreground/66">
                 {block.bullets.map((bullet) => (
                   <li key={bullet} className="flex gap-3">
-                    <span className="mt-2 h-1.5 w-1.5 rounded-full bg-primary" />
+                    <span className="mt-2 h-1.5 w-1.5 rounded-full bg-[linear-gradient(180deg,rgba(76,122,255,1),rgba(255,135,74,0.92))]" />
                     <span>{bullet}</span>
                   </li>
                 ))}
               </ul>
             ) : null}
             {block.code ? (
-              <pre className="overflow-x-auto rounded-[24px] border border-white/8 bg-black/40 p-4 text-sm text-foreground/82">
+              <pre className="surface-panel-strong overflow-x-auto rounded-[24px] border border-white/[0.08] p-4 text-sm text-foreground/82">
                 <code>{block.code.snippet}</code>
               </pre>
             ) : null}
@@ -101,7 +105,7 @@ export default async function DocsArticlePage({ params }: DocsArticlePageProps) 
         {neighbors.previous ? (
           <Link
             href={`/docs/${neighbors.previous.slug}`}
-            className="rounded-[26px] border border-white/10 bg-white/[0.03] p-5 text-sm text-foreground/68 transition-colors hover:text-foreground"
+            className="surface-panel rounded-[26px] border border-white/[0.07] p-5 text-sm text-foreground/68 transition-colors hover:bg-white/[0.04] hover:text-foreground"
           >
             Previous: {neighbors.previous.title}
           </Link>
@@ -111,12 +115,13 @@ export default async function DocsArticlePage({ params }: DocsArticlePageProps) 
         {neighbors.next ? (
           <Link
             href={`/docs/${neighbors.next.slug}`}
-            className="rounded-[26px] border border-white/10 bg-white/[0.03] p-5 text-right text-sm text-foreground/68 transition-colors hover:text-foreground"
+            className="surface-panel rounded-[26px] border border-white/[0.07] p-5 text-right text-sm text-foreground/68 transition-colors hover:bg-white/[0.04] hover:text-foreground"
           >
             Next: {neighbors.next.title}
           </Link>
         ) : null}
       </div>
+      <SiteFooter/>
     </article>
   );
 }

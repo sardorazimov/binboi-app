@@ -7,16 +7,14 @@ import Link from "next/link";
 export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
     <div className="relative min-h-screen overflow-hidden px-4 py-6 sm:px-6 lg:px-8">
-      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,rgba(103,195,151,0.16),transparent_28rem),radial-gradient(circle_at_bottom_right,rgba(255,234,194,0.08),transparent_20rem)]" />
+      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.05),transparent_26rem),linear-gradient(180deg,rgba(255,255,255,0.01),rgba(0,0,0,0))]" />
       <div className="mx-auto flex max-w-7xl flex-col gap-8">
         <div className="flex items-center justify-between">
           <Link
             href="/"
             className="flex items-center gap-3 text-sm font-semibold tracking-[0.24em] text-foreground"
           >
-            <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-primary/30 bg-primary/12 text-primary">
-              B
-            </span>
+            <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-[radial-gradient(circle_at_30%_30%,rgba(88,154,255,0.78),rgba(23,27,35,0.22)_45%,rgba(255,143,77,0.58)_100%)]" />
             <span>BINBOI</span>
           </Link>
           <Link href="/docs" className="text-sm text-foreground/62 hover:text-foreground">
@@ -25,9 +23,9 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
         </div>
 
         <div className="grid flex-1 gap-8 lg:grid-cols-[1fr_460px] lg:items-center">
-          <div className="hidden rounded-[36px] border border-white/10 bg-white/[0.03] p-10 lg:block">
+          <div className="hidden rounded-[36px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.018))] p-10 lg:block">
             <div className="max-w-xl space-y-6">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-foreground/52">
                 Secure access surface
               </p>
               <h1 className="text-5xl font-semibold leading-tight tracking-tight text-foreground">
@@ -47,7 +45,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
                 ].map((item) => (
                   <div
                     key={item}
-                    className="rounded-[24px] border border-white/8 bg-black/20 px-5 py-4 text-sm leading-7 text-foreground/68"
+                    className="rounded-[24px] border border-white/8 bg-black/16 px-5 py-4 text-sm leading-7 text-foreground/68"
                   >
                     {item}
                   </div>

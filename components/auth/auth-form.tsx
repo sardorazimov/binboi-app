@@ -52,9 +52,9 @@ export function AuthForm({
   const [state, formAction, pending] = useActionState(action, INITIAL_FORM_STATE);
 
   return (
-    <div className="rounded-[32px] border border-white/10 bg-white/[0.03] p-8 shadow-[0_24px_80px_-48px_rgba(0,0,0,0.9)] backdrop-blur-sm">
+    <div className="rounded-[32px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.018))] p-8 shadow-[0_24px_80px_-48px_rgba(0,0,0,0.9)] backdrop-blur-sm">
       <div className="space-y-3">
-        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-foreground/52">
           Secure access
         </p>
         <h1 className="text-3xl font-semibold tracking-tight text-foreground">
@@ -113,7 +113,7 @@ export function AuthForm({
           <div
             className={`rounded-2xl border px-4 py-3 text-sm ${
               state.status === "success"
-                ? "border-primary/25 bg-primary/10 text-primary-foreground"
+                ? "border-white/10 bg-white/[0.05] text-foreground"
                 : "border-red-500/20 bg-red-500/8 text-red-100"
             }`}
           >
@@ -128,7 +128,7 @@ export function AuthForm({
 
       {auxiliaryHref && auxiliaryLabel ? (
         <div className="mt-5 text-center text-sm text-foreground/55">
-          <Link href={auxiliaryHref} className="text-primary transition-colors hover:text-primary/80">
+          <Link href={auxiliaryHref} className="text-foreground transition-colors hover:text-foreground/80">
             {auxiliaryLabel}
           </Link>
         </div>
@@ -136,7 +136,7 @@ export function AuthForm({
 
       {footerHref && footerLabel ? (
         <div className="mt-6 border-t border-white/8 pt-5 text-center text-sm text-foreground/55">
-          <Link href={footerHref} className="text-foreground transition-colors hover:text-primary">
+          <Link href={footerHref} className="text-foreground transition-colors hover:text-foreground/80">
             {footerLabel}
           </Link>
         </div>

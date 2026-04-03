@@ -1,21 +1,13 @@
 /**
- * Reusable dark surface for cards, panels, and list containers.
+ * Reusable premium panel surface for cards, dashboards, and section shells.
  */
 import type * as React from "react";
 
-import { cn } from "@/lib/utils";
+import { PanelFrame } from "@/components/visual/panel-frame";
 
 export function Panel({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
-  return (
-    <div
-      className={cn(
-        "rounded-[28px] border border-white/10 bg-white/[0.03] p-6 shadow-[0_24px_80px_-48px_rgba(0,0,0,0.85)] backdrop-blur-sm",
-        className,
-      )}
-      {...props}
-    />
-  );
+  return <PanelFrame className={className} {...props} />;
 }

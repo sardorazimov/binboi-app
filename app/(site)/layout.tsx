@@ -3,21 +3,24 @@
  */
 import type { ReactNode } from "react";
 
-import { SiteFooter } from "@/components/site/site-footer";
-import { SiteHeader } from "@/components/site/site-header";
-import { SiteScrollProvider } from "@/components/site/site-scroll-provider";
+
+
+import SmoothScrolling from "../../components/site/SmoothScrolling";
+import { Navbar } from "../../components/site/site-header";
 
 export default function SiteLayout({ children }: { children: ReactNode }) {
   return (
-    <SiteScrollProvider>
+    <>
       <div className="relative min-h-screen overflow-hidden">
-        <div className="absolute inset-x-0 top-0 -z-10 h-[32rem] " />
-        <SiteHeader />
-        <main className="relative mx-auto flex min-h-screen w-full max-w-7xl flex-col px-4 pb-20 pt-28 sm:px-6 lg:px-8">
+         <Navbar/>
+        <main className="min-w-full h-full">
+         
+        <SmoothScrolling>
           {children}
+        </SmoothScrolling>
         </main>
         {/* <SiteFooter /> */}
       </div>
-    </SiteScrollProvider>
+    </>
   );
 }

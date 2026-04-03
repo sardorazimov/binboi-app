@@ -80,11 +80,11 @@ export default async function DashboardOverviewPage() {
       </div>
 
       <div className="grid gap-5 xl:grid-cols-[1.1fr_0.9fr]">
-        <Panel className="space-y-4">
+        <Panel className="surface-panel surface-panel-blue space-y-4 border-white/[0.07]">
           <h2 className="text-xl font-semibold text-foreground">Recent tunnels</h2>
           <div className="overflow-hidden rounded-[24px] border border-white/8">
             <table className="min-w-full divide-y divide-white/8 text-left text-sm">
-              <thead className="bg-white/[0.03] text-foreground/48">
+              <thead className="bg-white/[0.025] text-foreground/48">
                 <tr>
                   <th className="px-4 py-3 font-medium">Name</th>
                   <th className="px-4 py-3 font-medium">Hostname</th>
@@ -92,7 +92,7 @@ export default async function DashboardOverviewPage() {
                   <th className="px-4 py-3 font-medium">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/8">
+              <tbody className="divide-y divide-white/8 bg-white/[0.015]">
                 {tunnelsResult.data?.slice(0, 5).map((tunnel) => (
                   <tr key={tunnel.id}>
                     <td className="px-4 py-4 text-foreground">{tunnel.name}</td>
@@ -111,14 +111,14 @@ export default async function DashboardOverviewPage() {
           </div>
         </Panel>
 
-        <Panel className="space-y-4">
+        <Panel className="surface-panel surface-panel-blue space-y-4 border-white/[0.07]">
           <h2 className="text-xl font-semibold text-foreground">Top routes</h2>
           <div className="space-y-3">
             {usageResult.data?.topRoutes.length ? (
               usageResult.data.topRoutes.slice(0, 5).map((route) => (
                 <div
                   key={route.route}
-                  className="flex items-center justify-between rounded-[24px] border border-white/8 bg-black/20 px-4 py-4"
+                  className="surface-inset flex items-center justify-between rounded-[24px] border border-white/[0.07] px-4 py-4"
                 >
                   <span className="text-sm text-foreground">{route.route}</span>
                   <span className="text-sm text-foreground/58">
@@ -127,7 +127,7 @@ export default async function DashboardOverviewPage() {
                 </div>
               ))
             ) : (
-              <div className="rounded-[24px] border border-white/8 bg-black/20 px-4 py-10 text-center text-sm text-foreground/46">
+              <div className="surface-inset rounded-[24px] border border-white/[0.07] px-4 py-10 text-center text-sm text-foreground/46">
                 Usage data is not available yet.
               </div>
             )}

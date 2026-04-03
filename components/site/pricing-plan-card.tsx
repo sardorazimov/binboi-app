@@ -1,10 +1,10 @@
 /**
- * Public pricing plan card with restrained emphasis for highlighted tiers.
+ * Public pricing plan card with restrained highlight handling for the commercial tiers.
  */
 import Link from "next/link";
 
+import { CardSurface, PanelFrame, SectionGlow } from "@/components/visual";
 import { Button } from "@/components/ui/button";
-import { Panel } from "@/components/ui/panel";
 import type { PricingPlan } from "@/constants";
 import { cn } from "@/lib/utils";
 
@@ -14,17 +14,17 @@ type PricingPlanCardProps = {
 
 export function PricingPlanCard({ plan }: PricingPlanCardProps) {
   return (
-    <Panel
+    <PanelFrame
       className={cn(
         "relative h-full overflow-hidden rounded-[32px] p-0",
-        plan.highlight
-          ? "border-primary/22 bg-[linear-gradient(180deg,rgba(103,195,151,0.12),rgba(255,255,255,0.03))]"
-          : "border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.045),rgba(255,255,255,0.015))]",
+        plan.highlight ? "border-white/[0.1]" : "border-white/[0.07]",
       )}
     >
-      <div className="absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
+      {/* The highlight tier gets the only dual-tone treatment; other tiers stay primarily blue-led. */}
+      <SectionGlow tone={plan.highlight ? "dual" : "blue"} />
+      <div className="absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-white/16 to-transparent" />
       {plan.highlight ? (
-        <div className="absolute right-6 top-6 rounded-full border border-primary/25 bg-primary/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
+        <div className="absolute right-6 top-6 rounded-full border border-white/[0.08] bg-white/[0.035] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-foreground/72">
           Most used
         </div>
       ) : null}
@@ -32,7 +32,7 @@ export function PricingPlanCard({ plan }: PricingPlanCardProps) {
       <div className="relative flex h-full flex-col gap-6 p-6 sm:p-7">
         <div className="space-y-4">
           <div className="space-y-2">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-foreground/58">
               {plan.name}
             </p>
             <h2 className="text-4xl font-semibold tracking-tight text-foreground">
@@ -48,15 +48,15 @@ export function PricingPlanCard({ plan }: PricingPlanCardProps) {
             </p>
           </div>
 
-          <div className="rounded-[24px] border border-white/8 bg-black/24 p-4 text-xs uppercase tracking-[0.2em] text-foreground/50">
+          <CardSurface className="p-4 text-xs uppercase tracking-[0.2em] text-foreground/50">
             {plan.footnote}
-          </div>
+          </CardSurface>
         </div>
 
         <ul className="space-y-3 text-sm leading-7 text-foreground/68">
           {plan.features.map((feature) => (
             <li key={feature} className="flex gap-3">
-              <span className="mt-2 h-1.5 w-1.5 rounded-full bg-primary" />
+              <span className="mt-2 h-1.5 w-1.5 rounded-full bg-white/50" />
               <span>{feature}</span>
             </li>
           ))}
@@ -70,6 +70,6 @@ export function PricingPlanCard({ plan }: PricingPlanCardProps) {
           <Link href={plan.ctaHref}>{plan.ctaLabel}</Link>
         </Button>
       </div>
-    </Panel>
+    </PanelFrame>
   );
 }

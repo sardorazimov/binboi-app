@@ -47,35 +47,21 @@ export const DASHBOARD_LINKS: NavItem[] = [
   { label: "Billing", href: "/dashboard/billing", icon: "billing" },
   { label: "Settings", href: "/dashboard/settings", icon: "settings" },
 ];
+export const DACS_LINKS: NavItem[] = [
+  { label: "Overview", href: "/docs", icon: "dashboard" },
+  { label: "Install", href: "/docs/install", icon: "cli" },
+  { label: "Tunnels", href: "/docs/tunnels", icon: "tunnels" },
+  { label: "Tokens", href: "/docs/tokens", icon: "tokens" },
+  { label: "Usage", href: "/docs/usage", icon: "usage" },
+  { label: "Logs", href: "/docs/log", icon: "logs" },
+  { label: "Integrations", href: "/docs/integrations", icon: "integrations" },
+  { label: "Billing", href: "/docs/billing", icon: "billing" },
+  { label: "Settings", href: "/docs/settings", icon: "settings" },
+];
 
 export const DASHBOARD_SECONDARY_LINKS: NavItem[] = [
   { label: "Legacy token route", href: "/dashboard/api", icon: "tokens" },
   { label: "Legacy usage route", href: "/dashboard/total_requests", icon: "activity" },
 ];
 
-export const DOCS_LINKS: NavItem[] = [
-  ...Array.from(new Set(DOCS_ARTICLES.map((article) => article.section))).map((section) => ({
-    label: section,
-    href: "/docs",
-    children: DOCS_ARTICLES.filter((article) => article.section === section).map(
-      (article) => ({
-        label: article.title,
-        href: `/docs/${article.slug}`,
-        icon:
-          article.slug === "introduction"
-            ? "home"
-            : article.slug === "authentication"
-              ? "auth"
-              : article.slug === "cli"
-                ? "cli"
-                : article.slug === "http-tunnels"
-                  ? "globe"
-                  : article.slug === "requests"
-                    ? "activity"
-                    : article.slug === "debugging" || article.slug === "bugs"
-                      ? "bugs"
-                      : "docs",
-      }),
-    ),
-  })),
-];
+

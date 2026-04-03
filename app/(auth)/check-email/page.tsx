@@ -17,7 +17,7 @@ export default function CheckEmailPage() {
   return (
     <Panel className="space-y-6 rounded-[32px] p-8">
       <div className="space-y-3">
-        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-foreground/52">
           Check your inbox
         </p>
         <h1 className="text-3xl font-semibold tracking-tight text-foreground">
