@@ -51,9 +51,12 @@ export default function SettingsPage() {
 
       <div className="grid gap-5 xl:grid-cols-3">
         {SETTINGS_SECTIONS.map((section) => (
-          <Panel key={section.title} className="space-y-3">
-            <h2 className="text-xl font-semibold text-foreground">{section.title}</h2>
-            <p className="text-sm leading-7 text-foreground/62">{section.description}</p>
+          <Panel
+            key={section.title}
+            className="space-y-3 rounded-[20px] border border-white/[0.08] bg-[#050505] p-6"
+          >
+            <h2 className="text-xl font-semibold text-white">{section.title}</h2>
+            <p className="text-sm leading-7 text-white/62">{section.description}</p>
           </Panel>
         ))}
       </div>

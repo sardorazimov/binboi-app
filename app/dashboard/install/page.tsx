@@ -32,15 +32,15 @@ function InstallCommandCard({
   title,
 }: InstallCommandCardProps) {
   return (
-    <Panel className="space-y-4 p-6">
+    <Panel className="space-y-4 rounded-[20px] border border-white/[0.08] bg-[#050505] p-6">
       <div className="space-y-2">
-        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-foreground/52">
+        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#6ca3ff]">
           {eyebrow}
         </p>
-        <h2 className="text-2xl font-semibold tracking-tight text-foreground">{title}</h2>
-        <p className="text-sm leading-7 text-foreground/62">{description}</p>
+        <h2 className="text-2xl font-semibold tracking-tight text-white">{title}</h2>
+        <p className="text-sm leading-7 text-white/62">{description}</p>
       </div>
-      <pre className="overflow-x-auto rounded-[24px] border border-white/8 bg-black/22 p-5 text-sm leading-7 text-foreground/82">
+      <pre className="overflow-x-auto rounded-[18px] border border-white/[0.08] bg-[#080808] p-5 text-sm leading-7 text-white/82">
         <code>{command}</code>
       </pre>
     </Panel>
@@ -94,12 +94,12 @@ export default async function InstallPage() {
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.25fr)_360px]">
         <div className="space-y-6">
-          <Panel className="space-y-6 p-7">
+          <Panel className="space-y-6 rounded-[20px] border border-white/[0.08] bg-[#050505] p-7">
             <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-foreground/52">
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#6ca3ff]">
                 Setup sequence
               </p>
-              <h2 className="text-2xl font-semibold tracking-tight text-foreground">
+              <h2 className="text-2xl font-semibold tracking-tight text-white">
                 Move from install to a first healthy tunnel without guesswork
               </h2>
             </div>
@@ -108,15 +108,15 @@ export default async function InstallPage() {
               {INSTALL_STEPS.map((step, index) => (
                 <div
                   key={step.title}
-                  className="rounded-[24px] border border-white/8 bg-black/16 p-5"
+                  className="rounded-[18px] border border-white/[0.08] bg-[#080808] p-5"
                 >
-                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-foreground/44">
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/44">
                     Step {index + 1}
                   </p>
-                  <h3 className="mt-3 text-lg font-semibold text-foreground">
+                  <h3 className="mt-3 text-lg font-semibold text-white">
                     {step.title}
                   </h3>
-                  <p className="mt-3 text-sm leading-7 text-foreground/62">
+                  <p className="mt-3 text-sm leading-7 text-white/62">
                     {step.description}
                   </p>
                 </div>
@@ -132,55 +132,55 @@ export default async function InstallPage() {
         </div>
 
         <div className="space-y-6">
-          <Panel className="space-y-4 p-6">
+          <Panel className="space-y-4 rounded-[20px] border border-white/[0.08] bg-[#050505] p-6">
             <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-foreground/52">
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#6ca3ff]">
                 Engine status
               </p>
-              <h2 className="text-xl font-semibold text-foreground">Current connection</h2>
+              <h2 className="text-xl font-semibold text-white">Current connection</h2>
             </div>
 
             <div className="grid gap-3">
-              <div className="rounded-[22px] border border-white/8 bg-black/16 px-4 py-4">
-                <p className="text-xs uppercase tracking-[0.2em] text-foreground/42">
+              <div className="rounded-[18px] border border-white/[0.08] bg-[#080808] px-4 py-4">
+                <p className="text-xs uppercase tracking-[0.2em] text-white/42">
                   Engine URL
                 </p>
-                <p className="mt-2 break-all text-sm text-foreground/72">
+                <p className="mt-2 break-all text-sm text-white/72">
                   {engineOverview.engineBaseUrl || "Not configured"}
                 </p>
               </div>
-              <div className="rounded-[22px] border border-white/8 bg-black/16 px-4 py-4">
-                <p className="text-xs uppercase tracking-[0.2em] text-foreground/42">
+              <div className="rounded-[18px] border border-white/[0.08] bg-[#080808] px-4 py-4">
+                <p className="text-xs uppercase tracking-[0.2em] text-white/42">
                   Health
                 </p>
-                <p className="mt-2 text-sm text-foreground/72">
+                <p className="mt-2 text-sm text-white/72">
                   {engineOverview.health
                     ? `${engineOverview.health.status} · ${engineOverview.health.version}`
                     : "Unavailable"}
                 </p>
               </div>
-              <div className="rounded-[22px] border border-white/8 bg-black/16 px-4 py-4">
-                <p className="text-xs uppercase tracking-[0.2em] text-foreground/42">
+              <div className="rounded-[18px] border border-white/[0.08] bg-[#080808] px-4 py-4">
+                <p className="text-xs uppercase tracking-[0.2em] text-white/42">
                   Engine tunnels
                 </p>
-                <p className="mt-2 text-sm text-foreground/72">
+                <p className="mt-2 text-sm text-white/72">
                   {engineOverview.tunnelCount} returned
                 </p>
               </div>
             </div>
           </Panel>
 
-          <Panel className="space-y-4 p-6">
+          <Panel className="space-y-4 rounded-[20px] border border-white/[0.08] bg-[#050505] p-6">
             <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-foreground/52">
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#6ca3ff]">
                 Service boundary
               </p>
-              <h2 className="text-xl font-semibold text-foreground">
+              <h2 className="text-xl font-semibold text-white">
                 App and engine stay separate
               </h2>
             </div>
 
-            <div className="space-y-3 text-sm leading-7 text-foreground/64">
+            <div className="space-y-3 text-sm leading-7 text-white/64">
               <p>Control plane URL: {engineOverview.controlPlaneBaseUrl}</p>
               <p>
                 Internal control URL:{" "}
@@ -190,15 +190,15 @@ export default async function InstallPage() {
             </div>
           </Panel>
 
-          <Panel className="space-y-4 p-6">
+          <Panel className="space-y-4 rounded-[20px] border border-white/[0.08] bg-[#050505] p-6">
             <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-foreground/52">
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#6ca3ff]">
                 Expected engine paths
               </p>
-              <h2 className="text-xl font-semibold text-foreground">Current adapter contract</h2>
+              <h2 className="text-xl font-semibold text-white">Current adapter contract</h2>
             </div>
 
-            <div className="space-y-3 text-sm leading-7 text-foreground/64">
+            <div className="space-y-3 text-sm leading-7 text-white/64">
               <p>Health: {engineOverview.expectedPaths.health}</p>
               <p>Tunnels: {engineOverview.expectedPaths.tunnels}</p>
               <p>Sessions: {engineOverview.expectedPaths.sessions}</p>

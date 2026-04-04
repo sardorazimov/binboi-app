@@ -18,10 +18,10 @@ export function BillingCheckoutCard({ configured }: { configured: boolean }) {
   );
 
   return (
-    <Panel>
+    <Panel className="rounded-[20px] border border-white/[0.08] bg-[#050505] p-6">
       <div className="space-y-3">
-        <h2 className="text-xl font-semibold text-foreground">Change or start billing</h2>
-        <p className="text-sm leading-7 text-foreground/62">
+        <h2 className="text-xl font-semibold text-white">Change or start billing</h2>
+        <p className="text-sm leading-7 text-white/62">
           The preferred production path is a backend-issued Paddle checkout or customer
           portal URL. This form is already wired for that integration.
         </p>
@@ -29,7 +29,7 @@ export function BillingCheckoutCard({ configured }: { configured: boolean }) {
 
       <form action={formAction} className="mt-6 space-y-4">
         <label className="block space-y-2">
-          <span className="text-sm font-medium text-foreground/84">Plan</span>
+          <span className="text-sm font-medium text-white/84">Plan</span>
           <Select name="planId" defaultValue="team" disabled={!configured}>
             <option value="starter">Starter</option>
             <option value="team">Team</option>
@@ -41,7 +41,7 @@ export function BillingCheckoutCard({ configured }: { configured: boolean }) {
           <div
             className={`rounded-2xl border px-4 py-3 text-sm ${
               state.status === "success"
-                ? "border-white/10 bg-white/[0.05] text-foreground"
+                ? "border-white/[0.08] bg-[#080808] text-white"
                 : "border-red-500/20 bg-red-500/10 text-red-100"
             }`}
           >

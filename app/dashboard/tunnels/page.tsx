@@ -33,9 +33,9 @@ export default async function TunnelsPage() {
         error={tunnelsResult.error}
       />
 
-      <Panel className="overflow-hidden p-0">
+      <Panel className="overflow-hidden rounded-[20px] border border-white/[0.08] bg-[#050505] p-0">
         <table className="min-w-full divide-y divide-white/8 text-left text-sm">
-          <thead className="bg-white/[0.03] text-foreground/48">
+          <thead className="bg-[#090909] text-white/48">
             <tr>
               <th className="px-4 py-3 font-medium">Name</th>
               <th className="px-4 py-3 font-medium">Hostname</th>
@@ -45,25 +45,25 @@ export default async function TunnelsPage() {
               <th className="px-4 py-3 font-medium">Last seen</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-white/8">
+          <tbody className="divide-y divide-white/8 bg-[#050505]">
             {tunnelsResult.data?.length ? (
               tunnelsResult.data.map((tunnel) => (
                 <tr key={tunnel.id}>
-                  <td className="px-4 py-4 text-foreground">{tunnel.name}</td>
-                  <td className="px-4 py-4 text-foreground/62">{tunnel.hostname}</td>
-                  <td className="px-4 py-4 text-foreground/62">{tunnel.protocol}</td>
-                  <td className="px-4 py-4 text-foreground/62">{tunnel.region}</td>
-                  <td className="px-4 py-4 text-foreground/62">
+                  <td className="px-4 py-4 text-white">{tunnel.name}</td>
+                  <td className="px-4 py-4 text-white/62">{tunnel.hostname}</td>
+                  <td className="px-4 py-4 text-white/62">{tunnel.protocol}</td>
+                  <td className="px-4 py-4 text-white/62">{tunnel.region}</td>
+                  <td className="px-4 py-4 text-white/62">
                     {formatNumber(tunnel.requests24h)}
                   </td>
-                  <td className="px-4 py-4 text-foreground/62">
+                  <td className="px-4 py-4 text-white/62">
                     {formatDateTime(tunnel.lastSeenAt)}
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan={6} className="px-4 py-12 text-center text-foreground/46">
+                <td colSpan={6} className="px-4 py-12 text-center text-white/46">
                   No tunnel data returned yet.
                 </td>
               </tr>

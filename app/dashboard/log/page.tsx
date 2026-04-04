@@ -21,13 +21,13 @@ export default function LogPage() {
         description="No synthetic log feed is rendered here. Instead, the page explains the views the product expects once a real event stream is connected."
       />
 
-      <Panel className="space-y-4">
-        <h2 className="text-xl font-semibold text-foreground">Suggested log views</h2>
+      <Panel className="space-y-4 rounded-[20px] border border-white/[0.08] bg-[#050505] p-6">
+        <h2 className="text-xl font-semibold text-white">Suggested log views</h2>
         <div className="grid gap-3 md:grid-cols-2">
           {LOG_VIEW_PRESETS.map((preset) => (
             <div
               key={preset}
-              className="rounded-[24px] border border-white/8 bg-black/20 px-4 py-4 text-sm text-foreground/68"
+              className="rounded-[18px] border border-white/[0.08] bg-[#080808] px-4 py-4 text-sm text-white/68"
             >
               {preset}
             </div>

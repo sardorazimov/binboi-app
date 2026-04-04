@@ -51,9 +51,12 @@ export default function IntegrationsPage() {
 
       <div className="grid gap-5 xl:grid-cols-3">
         {INTEGRATION_CARDS.map((card) => (
-          <Panel key={card.name} className="space-y-3">
-            <h2 className="text-xl font-semibold text-foreground">{card.name}</h2>
-            <p className="text-sm leading-7 text-foreground/62">{card.summary}</p>
+          <Panel
+            key={card.name}
+            className="space-y-3 rounded-[20px] border border-white/[0.08] bg-[#050505] p-6"
+          >
+            <h2 className="text-xl font-semibold text-white">{card.name}</h2>
+            <p className="text-sm leading-7 text-white/62">{card.summary}</p>
           </Panel>
         ))}
       </div>

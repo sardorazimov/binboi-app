@@ -60,15 +60,15 @@ export default async function DashboardOverviewPage() {
       />
 
       <div className="grid gap-5 xl:grid-cols-[1.15fr_0.85fr]">
-        <Panel className="surface-panel surface-panel-dual space-y-5 border-white/[0.07] p-7">
+        <Panel className="space-y-5 rounded-[20px] border border-white/[0.08] bg-[#050505] p-7 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
           <div className="space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-foreground/46">
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#6ca3ff]">
               Current workspace
             </p>
-            <h2 className="text-3xl font-semibold tracking-tight text-foreground">
-              Local tunnels, tokens, and usage are now wired into one calmer dashboard.
+            <h2 className="text-3xl font-semibold tracking-tight text-white">
+              Tunnels, tokens, and usage now sit inside one darker, calmer control room.
             </h2>
-            <p className="max-w-2xl text-sm leading-8 text-foreground/62">
+            <p className="max-w-2xl text-sm leading-8 text-white/62">
               Use this screen to spot whether the system is healthy, then jump straight
               into tunnels, token rotation, or install steps without losing context.
             </p>
@@ -87,8 +87,8 @@ export default async function DashboardOverviewPage() {
           </div>
         </Panel>
 
-        <Panel className="space-y-4 border-white/[0.07] p-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-foreground/42">
+        <Panel className="space-y-4 rounded-[20px] border border-white/[0.08] bg-[#050505] p-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#6ca3ff]">
             Snapshot
           </p>
           <div className="grid gap-3">
@@ -111,13 +111,13 @@ export default async function DashboardOverviewPage() {
             ].map((item) => (
               <div
                 key={item.label}
-                className="rounded-[22px] border border-white/[0.08] bg-white/[0.025] px-4 py-4"
+                className="rounded-[18px] border border-white/[0.08] bg-[#080808] px-4 py-4"
               >
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-foreground/40">
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/40">
                   {item.label}
                 </p>
-                <p className="mt-2 text-lg font-semibold text-foreground">{item.value}</p>
-                <p className="mt-2 text-sm leading-6 text-foreground/56">{item.detail}</p>
+                <p className="mt-2 text-lg font-semibold text-white">{item.value}</p>
+                <p className="mt-2 text-sm leading-6 text-white/56">{item.detail}</p>
               </div>
             ))}
           </div>
@@ -148,16 +148,16 @@ export default async function DashboardOverviewPage() {
       </div>
 
       <div className="grid gap-5 xl:grid-cols-[1.1fr_0.9fr]">
-        <Panel className="surface-panel surface-panel-blue space-y-4 border-white/[0.07] p-0">
+        <Panel className="space-y-4 rounded-[20px] border border-white/[0.08] bg-[#050505] p-0">
           <div className="border-b border-white/[0.08] px-6 py-5">
-            <h2 className="text-xl font-semibold text-foreground">Recent tunnels</h2>
-            <p className="mt-2 text-sm leading-7 text-foreground/58">
+            <h2 className="text-xl font-semibold text-white">Recent tunnels</h2>
+            <p className="mt-2 text-sm leading-7 text-white/58">
               The most recent tunnel surfaces returned by the control plane.
             </p>
           </div>
           <div className="overflow-hidden rounded-[24px] border border-white/8">
             <table className="min-w-full divide-y divide-white/8 text-left text-sm">
-              <thead className="bg-white/[0.025] text-foreground/48">
+              <thead className="bg-[#090909] text-white/48">
                 <tr>
                   <th className="px-4 py-3 font-medium">Name</th>
                   <th className="px-4 py-3 font-medium">Hostname</th>
@@ -165,29 +165,29 @@ export default async function DashboardOverviewPage() {
                   <th className="px-4 py-3 font-medium">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/8 bg-white/[0.015]">
+              <tbody className="divide-y divide-white/8 bg-[#050505]">
                 {tunnelsResult.data?.slice(0, 5).map((tunnel) => (
                   <tr key={tunnel.id}>
-                    <td className="px-4 py-4 text-foreground">{tunnel.name}</td>
-                    <td className="px-4 py-4 text-foreground/62">{tunnel.hostname}</td>
-                    <td className="px-4 py-4 text-foreground/62">{tunnel.region}</td>
-                    <td className="px-4 py-4 text-foreground/62">{tunnel.status}</td>
+                    <td className="px-4 py-4 text-white">{tunnel.name}</td>
+                    <td className="px-4 py-4 text-white/62">{tunnel.hostname}</td>
+                    <td className="px-4 py-4 text-white/62">{tunnel.region}</td>
+                    <td className="px-4 py-4 text-white/62">{tunnel.status}</td>
                   </tr>
                 )) ?? null}
               </tbody>
             </table>
             {!tunnelsResult.data?.length ? (
-              <div className="px-4 py-10 text-center text-sm text-foreground/46">
+              <div className="px-4 py-10 text-center text-sm text-white/46">
                 No tunnels returned yet.
               </div>
             ) : null}
           </div>
         </Panel>
 
-        <Panel className="surface-panel surface-panel-blue space-y-4 border-white/[0.07] p-6">
+        <Panel className="space-y-4 rounded-[20px] border border-white/[0.08] bg-[#050505] p-6">
           <div className="space-y-2">
-            <h2 className="text-xl font-semibold text-foreground">Top routes</h2>
-            <p className="text-sm leading-7 text-foreground/58">
+            <h2 className="text-xl font-semibold text-white">Top routes</h2>
+            <p className="text-sm leading-7 text-white/58">
               Route activity from the current usage payload so you can see where traffic is clustering.
             </p>
           </div>
@@ -196,16 +196,16 @@ export default async function DashboardOverviewPage() {
               usageResult.data.topRoutes.slice(0, 5).map((route) => (
                 <div
                   key={route.route}
-                  className="surface-inset flex items-center justify-between rounded-[24px] border border-white/[0.07] px-4 py-4"
+                  className="flex items-center justify-between rounded-[18px] border border-white/[0.07] bg-[#080808] px-4 py-4"
                 >
-                  <span className="text-sm text-foreground">{route.route}</span>
-                  <span className="text-sm text-foreground/58">
+                  <span className="text-sm text-white">{route.route}</span>
+                  <span className="text-sm text-white/58">
                     {formatNumber(route.requests)}
                   </span>
                 </div>
               ))
             ) : (
-              <div className="surface-inset rounded-[24px] border border-white/[0.07] px-4 py-10 text-center text-sm text-foreground/46">
+              <div className="rounded-[18px] border border-white/[0.07] bg-[#080808] px-4 py-10 text-center text-sm text-white/46">
                 Usage data is not available yet.
               </div>
             )}

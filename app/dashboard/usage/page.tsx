@@ -56,21 +56,21 @@ export default async function UsagePage() {
 
       {usage ? <UsageChart usage={usage} /> : null}
 
-      <Panel className="space-y-4">
-        <h2 className="text-xl font-semibold text-foreground">Top routes</h2>
+      <Panel className="space-y-4 rounded-[20px] border border-white/[0.08] bg-[#050505] p-6">
+        <h2 className="text-xl font-semibold text-white">Top routes</h2>
         <div className="grid gap-3">
           {usage?.topRoutes.length ? (
             usage.topRoutes.map((route) => (
               <div
                 key={route.route}
-                className="flex items-center justify-between rounded-[24px] border border-white/8 bg-black/20 px-4 py-4 text-sm"
+                className="flex items-center justify-between rounded-[18px] border border-white/[0.08] bg-[#080808] px-4 py-4 text-sm"
               >
-                <span className="text-foreground">{route.route}</span>
-                <span className="text-foreground/58">{formatNumber(route.requests)}</span>
+                <span className="text-white">{route.route}</span>
+                <span className="text-white/58">{formatNumber(route.requests)}</span>
               </div>
             ))
           ) : (
-            <div className="rounded-[24px] border border-white/8 bg-black/20 px-4 py-10 text-center text-sm text-foreground/46">
+            <div className="rounded-[18px] border border-white/[0.08] bg-[#080808] px-4 py-10 text-center text-sm text-white/46">
               No route-level usage returned yet.
             </div>
           )}
