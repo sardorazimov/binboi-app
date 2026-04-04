@@ -118,7 +118,6 @@ export function Sidebar({ collapsed, setCollapsed, theme = "dark" }: SidebarProp
   const bg = dark ? "bg-[#000000]" : "bg-white";
   const border = dark ? "border-white/10" : "border-black/6";
   const dimText = dark ? "text-white/70" : "text-gray-200";
-  const inputBg = dark ? "bg-white/5" : "bg-black/4";
 
   return (
     <motion.aside

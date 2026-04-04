@@ -4,6 +4,7 @@ import React, { useState } from "react";
 
 import { motion } from "framer-motion";
 import { Sidebar } from "../../../components/docs/docs-sidebar";
+import { TooltipProvider } from "../../../components/ui/tooltip";
 
 export default function DashboardShell({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
@@ -27,7 +28,7 @@ export default function DashboardShell({ children }: { children: React.ReactNode
         className="min-h-screen w-full mt-18"
       >
         <div className="p-8">
-          {children}
+          <TooltipProvider>{children}</TooltipProvider>
         </div>
       </motion.main>
     </div>

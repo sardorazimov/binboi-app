@@ -1,12 +1,5 @@
-import React from 'react'
-import { Footer } from '../../../../components/site/site-footer'
+import { DocsRoutePage } from "@/components/docs/docs-route-page";
 
-const page = () => {
-  return (
-    <div>
-      <Footer/>
-    </div>
-  )
+export default function Page() {
+  return <DocsRoutePage pageKey="requests" />;
 }
-
-export default page

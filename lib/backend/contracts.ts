@@ -8,6 +8,7 @@ export type ServiceResult<T> = {
   ok: boolean;
   data: T | null;
   error?: string;
+  errorDetails?: unknown;
   endpoint?: string;
   status?: number;
 };

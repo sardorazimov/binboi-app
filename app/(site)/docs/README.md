@@ -11,3 +11,8 @@ Notes:
 - Article content currently lives in `constants/site-content.ts` so the docs IA is easy to audit in one place.
 - `app/(site)/docs/[...slug]/page.tsx` is the contract between docs URLs and structured article content.
 - If documentation grows significantly, move content definitions into a dedicated `lib/content` folder while keeping the route API stable.
+
+
+API gateway
+Early access
+Webhook gateway

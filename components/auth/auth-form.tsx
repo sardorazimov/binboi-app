@@ -52,7 +52,8 @@ export function AuthForm({
   const [state, formAction, pending] = useActionState(action, INITIAL_FORM_STATE);
 
   return (
-    <div className="rounded-[32px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.018))] p-8 shadow-[0_24px_80px_-48px_rgba(0,0,0,0.9)] backdrop-blur-sm">
+    <div className="relative overflow-hidden rounded-[32px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02))] p-8 shadow-[0_24px_80px_-48px_rgba(0,0,0,0.9)] backdrop-blur-sm">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(217,249,157,0.08),transparent_30%),radial-gradient(circle_at_bottom_left,rgba(97,147,255,0.12),transparent_30%)]" />
       <div className="space-y-3">
         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-foreground/52">
           Secure access
@@ -63,7 +64,7 @@ export function AuthForm({
         <p className="text-sm leading-7 text-foreground/68">{description}</p>
       </div>
 
-      <form action={formAction} className="mt-8 space-y-5">
+      <form action={formAction} className="relative mt-8 space-y-5">
         {fields.map((field) => {
           if (field.type === "hidden") {
             return (

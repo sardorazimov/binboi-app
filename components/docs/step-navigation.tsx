@@ -34,8 +34,8 @@ export function StepNavigation({ steps, nextStepsTitle = "Next steps" }: StepNav
   }
 
   return (
-    <nav className=" hidden w-56 xl:block">
-      <div className="space-y-1">
+    <nav className="hidden w-56 xl:block fixed">
+      <div className="space-y-1 ">
         {steps.map((step) => {
           const isActive = activeSection === step.id
           const isPast = steps.findIndex((s) => s.id === activeSection) > steps.findIndex((s) => s.id === step.id)

@@ -1,7 +1,6 @@
 /**
  * Lightweight placeholder for future editorial content without leaving a raw stub route.
  */
-import { SectionHeading } from "@/components/site/HeroBinboiEngine";
 import { Panel } from "@/components/ui/panel";
 import { createMetadata } from "@/lib/metadata";
 
@@ -14,15 +13,22 @@ export const metadata = createMetadata({
 export default function BlogPage() {
   return (
     <div className="space-y-10">
-      <SectionHeading
-        eyebrow="Journal"
-        title="Product notes are coming soon"
-        description="The main product pages and docs are prioritized first. This route stays intentional until editorial content is ready."
-      />
+      <section className="space-y-4">
+        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-foreground/52">
+          Blog
+        </p>
+        <h1 className="max-w-2xl text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
+          Writing can come after the product and docs settle.
+        </h1>
+        <p className="max-w-2xl text-sm leading-8 text-foreground/64 sm:text-base">
+          This page will hold product notes, workflow breakdowns, and customer stories.
+          Right now the priority is shipping the core Binboi surface cleanly.
+        </p>
+      </section>
       <Panel>
         <p className="text-sm leading-7 text-foreground/62">
-          Use the changelog for shipping updates today. Longer-form writing can live here
-          once the product narrative and customer stories are ready.
+          Use the changelog for shipping updates today. This route stays quiet until we
+          have real stories worth publishing.
         </p>
       </Panel>
     </div>

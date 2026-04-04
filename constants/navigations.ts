@@ -2,7 +2,6 @@
  * Shared navigation definitions for marketing, docs, auth, and dashboard surfaces.
  */
 import type { IconName } from "./icons";
-import { DOCS_ARTICLES } from "./site-content";
 
 export type NavItem = {
   label: string;
@@ -63,5 +62,4 @@ export const DASHBOARD_SECONDARY_LINKS: NavItem[] = [
   { label: "Legacy token route", href: "/dashboard/api", icon: "tokens" },
   { label: "Legacy usage route", href: "/dashboard/total_requests", icon: "activity" },
 ];
-
 

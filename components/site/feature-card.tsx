@@ -315,18 +315,18 @@ function MultiChannelIllustration() {
 
 const demos = [
   {
-    title: "Live Chat Demo",
-    description: "See Electric handle real customer inquiries",
+    title: "Tunnel bootstrap",
+    description: "Watch a local service move from localhost to a public Binboi URL",
     Illustration: LiveChatIllustration,
   },
   {
-    title: "Ticket Resolution",
-    description: "Watch AI resolve complex support tickets",
+    title: "Request inspection",
+    description: "Inspect what crossed the edge before you debug the wrong layer",
     Illustration: TicketResolutionIllustration,
   },
   {
-    title: "Multi-Channel Support",
-    description: "Seamless support across all channels",
+    title: "Shared workflows",
+    description: "Keep local previews, webhooks, and staging ingress readable for the team",
     Illustration: MultiChannelIllustration,
   },
 ]
@@ -335,43 +335,46 @@ export function FeatureCard() {
   const shouldReduceMotion = useReducedMotion()
 
   return (
-    <section className="relative py-16 sm:py-24 lg:py-32">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={shouldReduceMotion ? {} : { opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-10 sm:mb-16"
-        >
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-display mb-4">
-            See <span className="text-gradient-lime">Electric</span> in action
-          </h2>
-          <p className="text-sm sm:text-base text-muted-foreground max-w-xl mx-auto">
-            Watch how AI transforms customer support experiences
-          </p>
-        </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          {demos.map((demo, index) => (
-            <motion.div
-              key={demo.title}
-              initial={shouldReduceMotion ? {} : { opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="group relative rounded-xl overflow-hidden border border-border bg-card"
-            >
-              <div className="aspect-video relative overflow-hidden">
-                <demo.Illustration />
-              </div>
-              <div className="p-4">
-                <h3 className="font-semibold text-foreground mb-1">{demo.title}</h3>
-                <p className="text-sm text-muted-foreground">{demo.description}</p>
-              </div>
-            </motion.div>
-          ))}
+    <section className="relative py-16 sm:py-24 lg:py-32">
+      <></>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={shouldReduceMotion ? {} : { opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-10 sm:mb-16"
+          >
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-display mb-4">
+              See <span className="text-gradient-lime">Binboi</span> in action
+            </h2>
+            <p className="text-sm sm:text-base text-muted-foreground max-w-xl mx-auto">
+              Explore the core workflows behind tunnels, traffic visibility, and safer access
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {demos.map((demo, index) => (
+              <motion.div
+                key={demo.title}
+                initial={shouldReduceMotion ? {} : { opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="group relative rounded-xl overflow-hidden border border-border bg-card"
+              >
+                <div className="aspect-video relative overflow-hidden">
+                  <demo.Illustration />
+                </div>
+                <div className="p-4">
+                  <h3 className="font-semibold text-foreground mb-1">{demo.title}</h3>
+                  <p className="text-sm text-muted-foreground">{demo.description}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
-      </div>
+      
     </section>
   )
 }

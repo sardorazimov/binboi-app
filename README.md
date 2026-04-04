@@ -27,6 +27,7 @@ This frontend is designed to be backend-ready without pretending local mock data
 - Dashboard data reads from `CONTROL_PLANE_API_URL` through `lib/backend/control-plane.ts`.
 - Billing checkout expects a backend-issued URL from the billing or control-plane service, which can then hand off to Paddle.
 - When services are not configured, pages render explicit configuration states instead of fabricated activity.
+- A full backend integration map now lives in [lib/backend/README.md](/Users/sardorazimov/Desktop/binboi-app/lib/backend/README.md).
 
 ## Environment setup
 

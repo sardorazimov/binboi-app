@@ -4,48 +4,11 @@ import { useState } from "react"
 import Link from "next/link"
 
 import { cn } from "@/lib/utils"
-import { BsArrowUpRightCircle, BsGithub, BsLinkedin, BsMessenger, BsX, BsYoutube } from "react-icons/bs"
-import { FaMailBulk } from "react-icons/fa"
+import { ArrowUpRight, Mail } from "lucide-react"
 
-const socialLinks = [
-  { name: "GitHub", icon: BsGithub, href: "#", color: "hover:bg-[#333]" },
-  { name: "Twitter", icon: BsX, href: "#", color: "hover:bg-[#1DA1F2]" },
-  { name: "LinkedIn", icon: BsLinkedin, href: "#", color: "hover:bg-[#0A66C2]" },
-  { name: "YouTube", icon: BsYoutube, href: "#", color: "hover:bg-[#FF0000]" },
-  { name: "Discord", icon: BsMessenger, href: "#", color: "hover:bg-[#5865F2]" },
-]
+import { footerLinks, footerSocialLinks } from "@/components/site/site-nav-data"
 
-const footerLinks = {
-  Product: [
-    { name: "Features", href: "#" },
-    { name: "Pricing", href: "#" },
-    { name: "Integrations", href: "#" },
-    { name: "Changelog", href: "#" },
-    { name: "Roadmap", href: "#" },
-  ],
-  Resources: [
-    { name: "Documentation", href: "/docs" },
-    { name: "API Reference", href: "/docs/api" },
-    { name: "Guides", href: "#" },
-    { name: "Blog", href: "#" },
-    { name: "Community", href: "#" },
-  ],
-  Company: [
-    { name: "About", href: "#" },
-    { name: "Careers", href: "#" },
-    { name: "Press", href: "#" },
-    { name: "Partners", href: "#" },
-    { name: "Contact", href: "#" },
-  ],
-  Legal: [
-    { name: "Privacy", href: "#" },
-    { name: "Terms", href: "#" },
-    { name: "Security", href: "#" },
-    { name: "Cookies", href: "#" },
-  ],
-}
-
-function SocialIcon({ social }: { social: typeof socialLinks[0] }) {
+function SocialIcon({ social }: { social: typeof footerSocialLinks[0] }) {
   const [isHovered, setIsHovered] = useState(false)
   const Icon = social.icon
 
@@ -55,8 +18,7 @@ function SocialIcon({ social }: { social: typeof socialLinks[0] }) {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       className={cn(
-        "group relative flex h-11 w-11 items-center justify-center rounded-full border border-border/50 bg-secondary/30 transition-all duration-300",
-        social.color,
+        "group relative flex h-11 w-11 items-center justify-center rounded-full border border-border/50 bg-secondary/30 transition-all duration-300 hover:border-primary/40 hover:bg-primary/10",
         isHovered && "scale-110 border-transparent text-white"
       )}
     >
@@ -83,7 +45,7 @@ function FooterLink({ name, href }: { name: string; href: string }) {
         {name}
         <span className="absolute -bottom-0.5 left-0 h-px w-0 bg-primary transition-all duration-300 group-hover:w-full" />
       </span>
-      <BsArrowUpRightCircle className="h-3 w-3 opacity-0 -translate-y-1 translate-x-1 transition-all duration-200 group-hover:opacity-100 group-hover:translate-y-0 group-hover:translate-x-0" />
+      <ArrowUpRight className="h-3 w-3 opacity-0 -translate-y-1 translate-x-1 transition-all duration-200 group-hover:opacity-100 group-hover:translate-y-0 group-hover:translate-x-0" />
     </Link>
   )
 }
@@ -112,15 +74,15 @@ export function Footer() {
           <div className="flex flex-col items-center justify-between gap-8 lg:flex-row">
             <div className="text-center lg:text-left">
               <h3 className="text-2xl font-bold text-foreground lg:text-3xl">
-                Stay Updated with DevDocs
+                Stay close to the Binboi rollout
               </h3>
               <p className="mt-2 text-muted-foreground">
-                Get the latest updates, tutorials, and tips delivered to your inbox.
+                Product updates, docs changes, and setup guidance for teams exposing internal services.
               </p>
             </div>
             <form onSubmit={handleSubscribe} className="flex w-full max-w-md gap-3">
               <div className="relative flex-1">
-                <FaMailBulk className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+                <Mail className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
                 <input
                   type="email"
                   value={email}
@@ -152,17 +114,17 @@ export function Footer() {
           <div className="lg:col-span-2">
             <Link href="/" className="flex items-center gap-2 group">
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary transition-transform duration-300 group-hover:scale-110">
-                <span className="text-lg font-bold text-primary-foreground">D</span>
+                <span className="text-lg font-bold text-primary-foreground">B</span>
               </div>
-              <span className="text-xl font-bold text-foreground">DevDocs</span>
+              <span className="text-xl font-bold text-foreground">Binboi</span>
             </Link>
             <p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-              The complete developer documentation platform. Build better applications with our comprehensive guides, API references, and tutorials.
+              Tunnels, request visibility, and access hygiene for teams that need to bring local and internal services online without chaos.
             </p>
             
             {/* Social links */}
             <div className="mt-6 flex flex-wrap gap-3">
-              {socialLinks.map((social) => (
+              {footerSocialLinks.map((social) => (
                 <SocialIcon key={social.name} social={social} />
               ))}
             </div>
@@ -191,7 +153,7 @@ export function Footer() {
         <div className="mx-auto max-w-7xl px-6 py-6">
           <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
             <p className="text-sm text-muted-foreground">
-              &copy; {new Date().getFullYear()} DevDocs. All rights reserved.
+              &copy; {new Date().getFullYear()} Binboi. All rights reserved.
             </p>
             <div className="flex items-center gap-6">
               <span className="flex items-center gap-2 text-sm text-muted-foreground">

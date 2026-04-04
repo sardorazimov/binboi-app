@@ -9,6 +9,71 @@ type ServiceConfig = {
   token: string;
 };
 
+type JsonRecord = Record<string, unknown>;
+
+function isRecord(value: unknown): value is JsonRecord {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function extractErrorMessage(payload: unknown, fallback: string) {
+  if (typeof payload === "string" && payload.trim()) {
+    return payload;
+  }
+
+  if (!isRecord(payload)) {
+    return fallback;
+  }
+
+  const directMessageKeys = ["message", "error", "detail", "title", "reason"];
+
+  for (const key of directMessageKeys) {
+    const value = payload[key];
+    if (typeof value === "string" && value.trim()) {
+      return value;
+    }
+  }
+
+  const nestedErrorKeys = ["errors", "fieldErrors"];
+
+  for (const key of nestedErrorKeys) {
+    const value = payload[key];
+
+    if (typeof value === "string" && value.trim()) {
+      return value;
+    }
+
+    if (Array.isArray(value)) {
+      const firstString = value.find(
+        (item) => typeof item === "string" && item.trim(),
+      );
+
+      if (typeof firstString === "string") {
+        return firstString;
+      }
+    }
+
+    if (isRecord(value)) {
+      for (const nestedValue of Object.values(value)) {
+        if (typeof nestedValue === "string" && nestedValue.trim()) {
+          return nestedValue;
+        }
+
+        if (Array.isArray(nestedValue)) {
+          const firstNested = nestedValue.find(
+            (item) => typeof item === "string" && item.trim(),
+          );
+
+          if (typeof firstNested === "string") {
+            return firstNested;
+          }
+        }
+      }
+    }
+  }
+
+  return fallback;
+}
+
 /**
  * Service registry for upstream APIs the product app can call from the server.
  */
@@ -89,16 +154,16 @@ export async function fetchServiceJson<T>(
     const payload = await readPayload(response);
 
     if (!response.ok) {
+      const fallbackMessage = `Request to ${config.label} failed with status ${response.status}.`;
+
       return {
         configured: true,
         ok: false,
         data: null,
+        errorDetails: payload,
         endpoint,
         status: response.status,
-        error:
-          typeof payload === "string"
-            ? payload
-            : `Request to ${config.label} failed with status ${response.status}.`,
+        error: extractErrorMessage(payload, fallbackMessage),
       };
     }
 

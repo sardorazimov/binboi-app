@@ -13,6 +13,82 @@ import type { ServiceResult } from "@/lib/backend/contracts";
 import { INITIAL_FORM_STATE, type FormState } from "@/lib/form-state";
 import { getStringValue, isEmail, validatePassword } from "@/lib/validation";
 
+type JsonRecord = Record<string, unknown>;
+
+function isRecord(value: unknown): value is JsonRecord {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function readString(record: JsonRecord, ...keys: string[]) {
+  for (const key of keys) {
+    const value = record[key];
+
+    if (typeof value === "string" && value.trim()) {
+      return value;
+    }
+  }
+
+  return "";
+}
+
+function extractAuthIdentity(
+  value: unknown,
+  fallbackEmail: string,
+  fallbackName?: string,
+) {
+  const root = isRecord(value) ? value : {};
+  const payload = isRecord(root.data) ? root.data : root;
+  const user = isRecord(payload.user)
+    ? payload.user
+    : isRecord(payload.account)
+      ? payload.account
+      : isRecord(payload.member)
+        ? payload.member
+        : payload;
+
+  return {
+    email: readString(user, "email") || fallbackEmail,
+    name:
+      readString(user, "name", "displayName", "fullName") || fallbackName,
+  };
+}
+
+function readFieldErrors(details: unknown): Record<string, string> | undefined {
+  const root = isRecord(details) ? details : {};
+  const candidate =
+    isRecord(root.fieldErrors)
+      ? root.fieldErrors
+      : isRecord(root.errors)
+        ? root.errors
+        : undefined;
+
+  if (!candidate) {
+    return undefined;
+  }
+
+  const entries = Object.entries(candidate)
+    .map(([key, value]) => {
+      if (typeof value === "string" && value.trim()) {
+        return [key, value] as const;
+      }
+
+      if (Array.isArray(value)) {
+        const firstString = value.find(
+          (item) => typeof item === "string" && item.trim(),
+        );
+
+        if (typeof firstString === "string") {
+          return [key, firstString] as const;
+        }
+      }
+
+      return null;
+    })
+    .filter((entry): entry is readonly [string, string] => Boolean(entry));
+
+  return entries.length ? Object.fromEntries(entries) : undefined;
+}
+
 async function callAuthService(
   path: string,
   payload: Record<string, string>,
@@ -36,6 +112,7 @@ function createAuthErrorState(result: ServiceResult<Record<string, unknown>>) {
     return {
       status: "error",
       message: result.error ?? "The auth request failed. Check the upstream service response.",
+      fieldErrors: readFieldErrors(result.errorDetails),
     };
   }
 
@@ -76,11 +153,12 @@ export async function loginAction(
 
   const result = await callAuthService("/login", { email, password });
 
-  if (!result.ok) {
+  if (!result.ok || !result.data) {
     return createAuthErrorState(result);
   }
 
-  await createAppSessionCookie({ email });
+  const identity = extractAuthIdentity(result.data, email);
+  await createAppSessionCookie(identity);
   redirect(normalizeDashboardRedirectPath(nextPath));
 }
 
@@ -269,10 +347,11 @@ export async function acceptInviteAction(
     password,
   });
 
-  if (!result.ok) {
+  if (!result.ok || !result.data) {
     return createAuthErrorState(result);
   }
 
-  await createAppSessionCookie({ email, name });
+  const identity = extractAuthIdentity(result.data, email, name);
+  await createAppSessionCookie(identity);
   redirect("/dashboard");
 }

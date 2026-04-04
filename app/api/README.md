@@ -11,3 +11,5 @@ Notes:
 - The current dashboard uses server-only adapters in `lib/backend` instead of browser-facing API routes.
 - Keep secrets on the server and prefer server actions or server components when possible.
 - Document each route handler clearly because API surfaces become integration contracts quickly.
+- Internal health routes currently live at `/api/internal/health` and `/api/internal/engine/health`.
+- Internal routes must be protected with `x-binboi-internal-secret` or `Authorization: Bearer <shared-secret>`.
