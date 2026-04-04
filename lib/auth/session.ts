@@ -28,12 +28,18 @@ export async function getCurrentAppSession() {
  * Persists a signed session cookie after a successful upstream auth response.
  */
 export async function createAppSessionCookie(input: {
+  userId?: string;
+  workspaceId?: string;
+  role?: string;
   email: string;
   name?: string;
 }) {
   const cookieStore = await cookies();
   const issuedAt = Date.now();
   const session: AppUserSession = {
+    userId: input.userId,
+    workspaceId: input.workspaceId,
+    role: input.role,
     email: input.email,
     name: input.name,
     issuedAt,

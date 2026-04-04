@@ -34,8 +34,16 @@ export const env = {
   paddlePriceStarter: process.env.PADDLE_PRICE_STARTER ?? "",
   paddlePriceTeam: process.env.PADDLE_PRICE_TEAM ?? "",
   paddlePriceEnterprise: process.env.PADDLE_PRICE_ENTERPRISE ?? "",
-  emailProvider: process.env.EMAIL_PROVIDER ?? "",
-  emailApiKey: process.env.EMAIL_API_KEY ?? "",
+  resendApiKey: process.env.RESEND_API_KEY ?? "",
+  emailProvider:
+    process.env.EMAIL_PROVIDER ??
+    (process.env.RESEND_API_KEY ? "resend" : ""),
+  emailApiKey:
+    process.env.EMAIL_API_KEY ??
+    process.env.RESEND_API_KEY ??
+    "",
+  emailFrom: process.env.EMAIL_FROM ?? "",
+  emailReplyTo: process.env.EMAIL_REPLY_TO ?? "",
   controlPlaneApiUrl: devServiceBase(
     "/api/dev/control-plane",
     process.env.CONTROL_PLANE_API_URL,

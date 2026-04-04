@@ -21,11 +21,11 @@ export default function CheckEmailPage() {
           Check your inbox
         </p>
         <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-          Watch for a message from your auth provider
+          Watch for a message from Binboi
         </h1>
         <p className="text-sm leading-7 text-foreground/66">
-          This screen exists so the recovery and verification journeys feel complete even
-          when the upstream email provider is still being configured locally.
+          We send verification and recovery emails directly from the app. If nothing arrives,
+          double-check the address you submitted and give your inbox a minute.
         </p>
       </div>
 

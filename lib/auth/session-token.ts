@@ -8,6 +8,9 @@ export const APP_SESSION_COOKIE_NAME = "binboi_app_session";
 const DEV_SESSION_SECRET = "binboi-local-auth-secret";
 
 export type AppUserSession = {
+  userId?: string;
+  workspaceId?: string;
+  role?: string;
   email: string;
   name?: string;
   issuedAt: number;

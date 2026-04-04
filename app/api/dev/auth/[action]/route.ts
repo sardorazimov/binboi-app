@@ -68,11 +68,22 @@ export async function POST(request: Request, context: AuthRouteContext) {
         );
       }
 
+      if (!result.user) {
+        return NextResponse.json(
+          {
+            message: "User could not be created.",
+          },
+          { status: 500 },
+        );
+      }
+
+      const user = result.user;
+
       return NextResponse.json({
         data: {
           user: {
-            email: result.user.email,
-            name: result.user.name,
+            email: user.email,
+            name: user.name,
           },
         },
       });

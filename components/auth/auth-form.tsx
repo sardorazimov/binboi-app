@@ -32,6 +32,8 @@ type AuthFormProps = {
   submitLabel: string;
   action: (state: FormState, formData: FormData) => Promise<FormState>;
   fields: AuthField[];
+  githubHref?: string;
+  githubLabel?: string;
   auxiliaryHref?: string;
   auxiliaryLabel?: string;
   footerLabel?: string;
@@ -46,6 +48,8 @@ export function AuthForm({
   fields,
   footerHref,
   footerLabel,
+  githubHref,
+  githubLabel,
   submitLabel,
   title,
 }: AuthFormProps) {
@@ -65,6 +69,25 @@ export function AuthForm({
       </div>
 
       <form action={formAction} className="relative mt-8 space-y-5">
+        {githubHref && githubLabel ? (
+          <>
+            <Button
+              asChild
+              type="button"
+              // variant="outline"
+              size="lg"
+              className="w-full border-white/14 bg-white/[0.02] text-foreground hover:bg-white/[0.05]"
+            >
+              <Link href={githubHref}>{githubLabel}</Link>
+            </Button>
+            <div className="flex items-center gap-3 text-xs uppercase tracking-[0.22em] text-foreground/35">
+              <span className="h-px flex-1 bg-white/10" />
+              <span>Email and password</span>
+              <span className="h-px flex-1 bg-white/10" />
+            </div>
+          </>
+        ) : null}
+
         {fields.map((field) => {
           if (field.type === "hidden") {
             return (

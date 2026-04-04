@@ -2,6 +2,7 @@
  * Registration page for creating a new Binboi workspace account.
  */
 import { AuthForm } from "@/components/auth/auth-form";
+import { env } from "@/lib/env";
 import { createMetadata } from "@/lib/metadata";
 
 import { registerAction } from "../actions";
@@ -13,12 +14,16 @@ export const metadata = createMetadata({
 });
 
 export default function RegisterPage() {
+  const githubReady = Boolean(env.githubClientId && env.githubClientSecret);
+
   return (
     <AuthForm
       title="Create your workspace"
       description="Set up the account that will own your initial workspace, onboarding docs, and dashboard access."
       submitLabel="Create account"
       action={registerAction}
+      githubHref={githubReady ? "/api/auth/github/start" : undefined}
+      githubLabel={githubReady ? "Create with GitHub" : undefined}
       auxiliaryHref="/login"
       auxiliaryLabel="Already have an account?"
       footerHref="/docs/quick-start"

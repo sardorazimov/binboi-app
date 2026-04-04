@@ -1,20 +1,11 @@
 "use server";
 
 /**
- * Server actions for Binboi auth routes. These actions prefer the local Drizzle/Neon auth layer
- * when `DATABASE_URL` is present, while preserving the upstream auth-service fallback.
+ * Server actions for Binboi auth routes. These actions validate form inputs and hand off to
+ * an upstream auth service when the relevant environment variables are configured.
  */
 import { redirect } from "next/navigation";
 
-import {
-  acceptInviteWithPassword,
-  authenticateUserWithPassword,
-  isDatabaseAuthReady,
-  registerUserWithPassword,
-  requestPasswordReset,
-  resetPasswordWithToken,
-  verifyEmailRecord,
-} from "@/lib/auth/db";
 import { normalizeDashboardRedirectPath } from "@/lib/auth/redirects";
 import { createAppSessionCookie } from "@/lib/auth/session";
 import { fetchServiceJson } from "@/lib/backend/client";
@@ -56,9 +47,6 @@ function extractAuthIdentity(
         : payload;
 
   return {
-    userId: readString(user, "userId", "id"),
-    workspaceId: readString(user, "workspaceId", "defaultWorkspaceId"),
-    role: readString(user, "role", "workspaceRole"),
     email: readString(user, "email") || fallbackEmail,
     name:
       readString(user, "name", "displayName", "fullName") || fallbackName,
@@ -117,23 +105,21 @@ function createAuthErrorState(result: ServiceResult<Record<string, unknown>>) {
       status: "error",
       message:
         "Auth service is not configured yet. Add AUTH_API_URL and AUTH_API_SECRET to enable this flow.",
-    } as const;
+    };
   }
 
   if (!result.ok) {
     return {
       status: "error",
-      message:
-        result.error ??
-        "The auth request failed. Check the upstream service response.",
+      message: result.error ?? "The auth request failed. Check the upstream service response.",
       fieldErrors: readFieldErrors(result.errorDetails),
-    } as const;
+    };
   }
 
   return {
     status: "error",
     message: "The auth request could not be completed.",
-  } as const;
+  };
 }
 
 function createSuccessState(successMessage: string): FormState {
@@ -143,30 +129,8 @@ function createSuccessState(successMessage: string): FormState {
   };
 }
 
-function createFailureState(
-  message: string,
-  fieldErrors?: Record<string, string>,
-): FormState {
-  return {
-    status: "error",
-    message,
-    fieldErrors,
-  };
-}
-
-function createDatabaseFailureState(error: unknown): FormState {
-  const message =
-    error instanceof Error
-      ? error.message.includes("does not exist")
-        ? "Database schema is not applied yet. Run `npm run db:push` against Neon before using auth."
-        : error.message
-      : "Database auth failed. Check the Neon connection and Drizzle schema.";
-
-  return createFailureState(message);
-}
-
 /**
- * Handles login form submissions against the configured auth source.
+ * Handles login form submissions against the upstream auth service.
  */
 export async function loginAction(
   _state: FormState = INITIAL_FORM_STATE,
@@ -185,25 +149,6 @@ export async function loginAction(
         ...(password ? {} : { password: "Password is required." }),
       },
     };
-  }
-
-  if (isDatabaseAuthReady()) {
-    try {
-      const result = await authenticateUserWithPassword({ email, password });
-
-      if (!result.ok) {
-        return createFailureState(result.message, result.fieldErrors);
-      }
-
-      if (!result.identity) {
-        return createFailureState("The account could not establish a workspace session.");
-      }
-
-      await createAppSessionCookie(result.identity);
-      redirect(normalizeDashboardRedirectPath(nextPath));
-    } catch (error) {
-      return createDatabaseFailureState(error);
-    }
   }
 
   const result = await callAuthService("/login", { email, password });
@@ -241,24 +186,11 @@ export async function registerAction(
   }
 
   if (Object.keys(fieldErrors).length > 0) {
-    return createFailureState("Please fix the highlighted fields.", fieldErrors);
-  }
-
-  if (isDatabaseAuthReady()) {
-    try {
-      const result = await registerUserWithPassword({ email, name, password });
-
-      if (!result.ok) {
-        return createFailureState(result.message, result.fieldErrors);
-      }
-
-      return createSuccessState(
-        result.message ??
-          "Account created. Email verification is ready in the database flow.",
-      );
-    } catch (error) {
-      return createDatabaseFailureState(error);
-    }
+    return {
+      status: "error",
+      message: "Please fix the highlighted fields.",
+      fieldErrors,
+    };
   }
 
   const result = await callAuthService("/register", { email, name, password });
@@ -289,23 +221,6 @@ export async function forgotPasswordAction(
         email: "Use a valid email address.",
       },
     };
-  }
-
-  if (isDatabaseAuthReady()) {
-    try {
-      const result = await requestPasswordReset({ email });
-
-      if (!result.ok) {
-        return createFailureState(result.message, result.fieldErrors);
-      }
-
-      return createSuccessState(
-        result.message ??
-          "If the account exists, a reset token is ready in the database flow.",
-      );
-    } catch (error) {
-      return createDatabaseFailureState(error);
-    }
   }
 
   const result = await callAuthService("/forgot-password", { email });
@@ -343,21 +258,11 @@ export async function resetPasswordAction(
   }
 
   if (Object.keys(fieldErrors).length > 0) {
-    return createFailureState("Please fix the highlighted fields.", fieldErrors);
-  }
-
-  if (isDatabaseAuthReady()) {
-    try {
-      const result = await resetPasswordWithToken({ password, token });
-
-      if (!result.ok) {
-        return createFailureState(result.message, result.fieldErrors);
-      }
-
-      return createSuccessState(result.message ?? "Password reset complete.");
-    } catch (error) {
-      return createDatabaseFailureState(error);
-    }
+    return {
+      status: "error",
+      message: "Please fix the highlighted fields.",
+      fieldErrors,
+    };
   }
 
   const result = await callAuthService("/reset-password", { password, token });
@@ -370,7 +275,7 @@ export async function resetPasswordAction(
 }
 
 /**
- * Verifies an email confirmation token with the configured auth source.
+ * Verifies an email confirmation token with the upstream auth service.
  */
 export async function verifyEmailAction(
   _state: FormState = INITIAL_FORM_STATE,
@@ -387,23 +292,6 @@ export async function verifyEmailAction(
         email: "Use a valid email address if you do not have the token.",
       },
     };
-  }
-
-  if (isDatabaseAuthReady()) {
-    try {
-      const result = await verifyEmailRecord({ email, token });
-
-      if (!result.ok) {
-        return createFailureState(result.message, result.fieldErrors);
-      }
-
-      return createSuccessState(
-        result.message ??
-          "Verification request submitted. Continue to login once confirmed.",
-      );
-    } catch (error) {
-      return createDatabaseFailureState(error);
-    }
   }
 
   const result = await callAuthService("/verify-email", { email, token });
@@ -445,31 +333,11 @@ export async function acceptInviteAction(
   }
 
   if (Object.keys(fieldErrors).length > 0) {
-    return createFailureState("Please fix the highlighted fields.", fieldErrors);
-  }
-
-  if (isDatabaseAuthReady()) {
-    try {
-      const result = await acceptInviteWithPassword({
-        email,
-        inviteToken,
-        name,
-        password,
-      });
-
-      if (!result.ok) {
-        return createFailureState(result.message, result.fieldErrors);
-      }
-
-      if (!result.identity) {
-        return createFailureState("The invite was accepted but no app session could be created.");
-      }
-
-      await createAppSessionCookie(result.identity);
-      redirect("/dashboard");
-    } catch (error) {
-      return createDatabaseFailureState(error);
-    }
+    return {
+      status: "error",
+      message: "Please fix the highlighted fields.",
+      fieldErrors,
+    };
   }
 
   const result = await callAuthService("/accept-invite", {

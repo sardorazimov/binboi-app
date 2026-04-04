@@ -27,7 +27,7 @@ export default async function VerifyEmailPage({
   return (
     <AuthForm
       title="Verify your email"
-      description="Verification is handled by the upstream auth service. Use the token from your inbox or confirm the address that should receive a new email."
+      description="Use the token from your inbox or enter your email to receive a fresh verification link."
       submitLabel="Verify email"
       action={verifyEmailAction}
       auxiliaryHref="/check-email"
@@ -57,7 +57,7 @@ export default async function VerifyEmailPage({
           defaultValue: email,
           autoComplete: "email",
           required: false,
-          description: "Used when the auth service resends or checks the verification target.",
+          description: "Used when you want Binboi to send a fresh verification email.",
         },
       ]}
     />

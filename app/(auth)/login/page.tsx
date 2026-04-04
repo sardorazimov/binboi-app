@@ -2,6 +2,7 @@
  * Login page for workspace members returning to Binboi.
  */
 import { AuthForm } from "@/components/auth/auth-form";
+import { env } from "@/lib/env";
 import { createMetadata } from "@/lib/metadata";
 
 import { loginAction } from "../actions";
@@ -20,6 +21,7 @@ export const metadata = createMetadata({
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
   const { next } = await searchParams;
+  const githubReady = Boolean(env.githubClientId && env.githubClientSecret);
 
   return (
     <AuthForm
@@ -27,6 +29,8 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
       description="Log in to manage tunnels, rotate tokens, and review usage from a single workspace view."
       submitLabel="Log in"
       action={loginAction}
+      githubHref={githubReady ? "/api/auth/github/start" : undefined}
+      githubLabel={githubReady ? "Continue with GitHub" : undefined}
       auxiliaryHref="/forgot-password"
       auxiliaryLabel="Forgot password?"
       footerHref="/register"

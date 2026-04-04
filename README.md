@@ -39,7 +39,7 @@ Environment groups:
 - Auth: `AUTH_SECRET`, `AUTH_API_URL`, `AUTH_API_SECRET`
 - OAuth: `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`, `GITHUB_OAUTH_AUTHORIZE_URL`
 - Billing / Paddle: `PADDLE_*`, `BILLING_API_URL`, `BILLING_API_KEY`
-- Email: `EMAIL_PROVIDER`, `EMAIL_API_KEY`
+- Email: `RESEND_API_KEY`, `EMAIL_FROM`, `EMAIL_REPLY_TO`, plus optional `EMAIL_PROVIDER`, `EMAIL_API_KEY`
 - Platform services: `CONTROL_PLANE_*`, `ENGINE_*`, `INTERNAL_API_*`
 
 Local development minimum:
@@ -52,7 +52,7 @@ Production minimum:
 - Real database credentials
 - Auth secret and OAuth credentials if social login is enabled
 - Paddle keys, webhook secret, and price IDs for billing
-- Email provider credentials for verification and recovery flows
+- Resend credentials and sender identity for verification and recovery flows
 - Internal service secrets for server-to-server requests
 
 ## Scripts

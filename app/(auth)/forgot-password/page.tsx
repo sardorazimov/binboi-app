@@ -16,7 +16,7 @@ export default function ForgotPasswordPage() {
   return (
     <AuthForm
       title="Reset your password"
-      description="Enter the email tied to your workspace account and we will hand off a recovery request to the upstream auth provider."
+      description="Enter the email tied to your workspace account and we will send a recovery link if the account exists."
       submitLabel="Send recovery email"
       action={forgotPasswordAction}
       auxiliaryHref="/login"
