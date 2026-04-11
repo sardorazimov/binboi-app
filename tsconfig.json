@@ -29,6 +29,6 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts"
-  ],
+, "app/(site)/docs/introduction/page.mdx"  ],
   "exclude": ["node_modules"]
 }

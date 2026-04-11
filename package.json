@@ -12,7 +12,10 @@
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
+    "@mdx-js/loader": "^3.1.1",
+    "@mdx-js/react": "^3.1.1",
     "@neondatabase/serverless": "^1.0.2",
+    "@next/mdx": "^16.2.3",
     "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -26,7 +29,9 @@
     "radix-ui": "^1.4.3",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "react-icon": "^1.0.0",
     "react-icons": "^5.6.0",
+    "rehype-pretty-code": "^0.14.3",
     "resend": "^6.10.0",
     "shadcn": "^4.1.2",
     "shiki": "^4.0.2",
