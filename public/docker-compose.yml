@@ -1,0 +1,131 @@
+# Binboi — production docker-compose
+#
+# BEFORE STARTING:
+#   1. Copy this file to your server and fill in every <placeholder>
+#   2. Create /etc/binboi/server.yaml (see inline comment below)
+#   3. Point DNS A records to this server:
+#        tunnel.example.com      → <server-ip>
+#        *.tunnel.example.com    → <server-ip>
+#   4. Ports 80 and 443 must be reachable from the internet
+#      (Let's Encrypt ACME HTTP-01 challenge + tunnel connections)
+#
+# START:  docker compose up -d
+# LOGS:   docker compose logs -f binboi
+# UPDATE: docker compose pull && docker compose up -d
+
+name: binboi
+
+volumes:
+  binboi_data:
+    driver: local
+
+networks:
+  binboi_net:
+    driver: bridge
+
+services:
+
+  # ── Binboi server ──────────────────────────────────────────────────────────
+  binboi:
+    image: ghcr.io/binboi/server:latest
+    container_name: binboi
+    restart: unless-stopped
+    networks:
+      - binboi_net
+    ports:
+      # HTTPS + ACME challenge (public-facing)
+      - "80:80"
+      - "443:443"
+      # Tunnel connection port (clients connect here)
+      - "4443:4443"
+    volumes:
+      # Server config file (required — see template below)
+      - /etc/binboi/server.yaml:/etc/binboi/server.yaml:ro
+      # Persistent data: TLS certs, subdomain reservations, request buffer
+      - binboi_data:/var/lib/binboi
+    environment:
+      # Override any server.yaml value via env (prefix: BINBOI_)
+      BINBOI_DOMAIN: "tunnel.example.com"       # <-- change to your domain
+      BINBOI_LOG_LEVEL: "info"
+      BINBOI_LOG_FORMAT: "json"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:80/_binboi/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "5"
+    # Uncomment to pin a specific version instead of :latest
+    # image: ghcr.io/binboi/server:1.0.4
+
+  # ── Optional: Watchtower (auto-update binboi on new releases) ──────────────
+  # watchtower:
+  #   image: containrrr/watchtower:latest
+  #   container_name: watchtower
+  #   restart: unless-stopped
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #   environment:
+  #     WATCHTOWER_POLL_INTERVAL: "86400"    # check once per day
+  #     WATCHTOWER_CLEANUP: "true"
+  #     WATCHTOWER_INCLUDE_STOPPED: "false"
+  #     WATCHTOWER_SCOPE: "binboi"          # only update containers labelled binboi
+  #   command: binboi
+
+# ─────────────────────────────────────────────────────────────────────────────
+# /etc/binboi/server.yaml — minimal production config
+# Copy to your server, fill in the blanks, then mount it as shown above.
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# domain: tunnel.example.com          # <-- your wildcard domain
+# region: us-east                     # identifier shown in tunnel output
+#
+# http_port: 80
+# https_port: 443
+# tunnel_port: 4443
+#
+# tls:
+#   acme: true
+#   acme_email: admin@example.com     # <-- ACME registration email
+#   # Uncomment to use a custom ACME directory (e.g. ZeroSSL, internal CA):
+#   # acme_url: https://acme.zerossl.com/v2/DV90
+#
+# auth:
+#   tokens:
+#     - name: alice
+#       token: tok_alice_CHANGE_ME    # generate with: openssl rand -hex 32
+#     - name: bob
+#       token: tok_bob_CHANGE_ME
+#     - name: ci
+#       token: tok_ci_CHANGE_ME
+#       scopes: [tunnel:create, tunnel:read, request:read]
+#
+# subdomains:
+#   random_length: 8
+#   reserved:
+#     myapp: tok_alice_CHANGE_ME
+#
+# tcp:
+#   enabled: true
+#   port_range: "10000-20000"
+#
+# inspect:
+#   enabled: true
+#   buffer: 500           # max requests kept in memory per tunnel
+#
+# log:
+#   level: info
+#   format: json
+#   file: /var/log/binboi/server.log
+#
+# # Prometheus metrics endpoint (no auth)
+# metrics:
+#   enabled: true
+#   path: /_binboi/metrics
+#
+# # Outbound proxy (if your server is behind a corporate proxy)
+# # proxy: http://proxy.corp.example.com:3128

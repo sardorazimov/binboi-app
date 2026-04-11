@@ -1,0 +1,171 @@
+# Troubleshooting
+
+A reference for the most common errors and how to resolve them.
+
+## Connection Issues
+
+### `tunnel: connection refused`
+
+Your local service is not running on the port you specified.
+
+```bash
+# Check what's listening on the port
+lsof -i :3000       # macOS / Linux
+netstat -ano | findstr :3000  # Windows
+```
+
+Start your local service, then re-run the `binboi` command.
+
+### `tunnel: unable to connect to server`
+
+The CLI cannot reach the Binboi server.
+
+1. Verify the server address: `binboi config show`
+2. Check outbound connectivity: `curl -I https://binboi.example.com`
+3. Ensure port 443 is not blocked by a corporate firewall or VPN
+
+### `tunnel reconnecting...` (repeated)
+
+The CLI lost the server connection and is retrying with exponential backoff. This is normal after a network blip. If it persists:
+
+- Check server health: `binboi server status`
+- Check your machine's DNS: `nslookup binboi.example.com`
+- Try a different region: `binboi http 3000 --region us-west`
+
+---
+
+## Authentication Issues
+
+### `auth: token expired`
+
+Your auth token has expired. Re-authenticate:
+
+```bash
+binboi login --server https://binboi.example.com
+```
+
+### `auth: invalid token`
+
+The token in `~/.binboi/config.json` is malformed or was revoked. Log out and back in:
+
+```bash
+binboi logout
+binboi login --server https://binboi.example.com
+```
+
+### `auth: unauthorized`
+
+Your account does not have permission to create tunnels on this server. Contact your Binboi server admin.
+
+---
+
+## Subdomain Issues
+
+### `subdomain already in use`
+
+Another active session is holding the subdomain you requested.
+
+```bash
+# Use a different subdomain
+binboi http 3000 --subdomain myapp-dev
+
+# Or release the existing session first
+binboi tunnels list
+binboi tunnels stop <tunnel-id>
+```
+
+### Custom domain not resolving
+
+1. Verify your CNAME record: `dig CNAME dev.mycompany.com`
+2. DNS propagation can take up to 10 minutes
+3. Check that the Binboi server owns a certificate for your domain: `binboi tls status --hostname dev.mycompany.com`
+
+---
+
+## HTTPS / Certificate Issues
+
+### `ERR_CERT_AUTHORITY_INVALID`
+
+The Binboi server is using a self-signed certificate. Either:
+
+- Add the CA certificate to your trust store
+- Or use `--insecure` flag with curl for testing only — never in production
+
+### Certificate stuck provisioning
+
+Force a renewal:
+
+```bash
+binboi tls renew --hostname your.domain.com
+```
+
+---
+
+## Request Issues
+
+### Requests return `502 Bad Gateway`
+
+Your local service is running but returned an error. Check your application logs. Common causes:
+
+- Application threw an unhandled exception
+- Local service is not returning a valid HTTP response
+- Port is correct but the service is not yet ready (race condition on startup)
+
+### Requests return `504 Gateway Timeout`
+
+Your local service took too long to respond. Default timeout is 30 seconds.
+
+```bash
+# Extend the upstream timeout
+binboi http 3000 --upstream-timeout 120s
+```
+
+### Large request bodies are truncated
+
+The default request body size limit is 10 MB. Increase it:
+
+```bash
+binboi http 3000 --max-body-size 100mb
+```
+
+---
+
+## Inspector Issues
+
+### Port 4040 already in use
+
+```bash
+binboi http 3000 --inspect-port 4041
+```
+
+---
+
+## Diagnostic Commands
+
+```bash
+# Check config
+binboi config show
+
+# Test server connectivity
+binboi ping
+
+# Ping all regions
+binboi ping --all-regions
+
+# Show active tunnels
+binboi tunnels list
+
+# View CLI version
+binboi --version
+
+# Enable verbose debug output
+binboi http 3000 --log-level debug
+```
+
+---
+
+## Getting Help
+
+- Check the [Binboi GitHub issues](https://github.com/binboi/binboi/issues) for known bugs
+- Run `binboi diagnose` to generate a diagnostic bundle to share with support
+- See the [Logs](/docs/logs) page for guidance on capturing detailed output

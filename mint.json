@@ -1,0 +1,156 @@
+{
+  "$schema": "https://mintlify.com/schema.json",
+  "name": "Binboi",
+  "logo": {
+    "dark": "/logo/binboi-dark.svg",
+    "light": "/logo/binboi-light.svg"
+  },
+  "favicon": "/favicon.ico",
+  "colors": {
+    "primary": "#d9f99d",
+    "light": "#ecfccb",
+    "dark": "#a3e635",
+    "anchors": {
+      "from": "#d9f99d",
+      "to": "#a3e635"
+    },
+    "background": {
+      "dark": "#000000",
+      "light": "#ffffff"
+    }
+  },
+  "topbarLinks": [
+    {
+      "name": "GitHub",
+      "url": "https://github.com/Miransas/binboi"
+    }
+  ],
+  "topbarCtaButton": {
+    "name": "Dashboard",
+    "url": "https://binboi.com/dashboard"
+  },
+  "tabs": [
+    {
+      "name": "API Reference",
+      "url": "api-reference"
+    }
+  ],
+  "anchors": [
+    {
+      "name": "Showcase",
+      "icon": "stars",
+      "url": "https://binboi.dev/showcase"
+    },
+    {
+      "name": "GitHub",
+      "icon": "github",
+      "url": "https://github.com/Miransas/binboi"
+    },
+    {
+      "name": "Miransas",
+      "icon": "building",
+      "url": "https://miransas.com"
+    }
+  ],
+  "navigation": [
+    {
+      "group": "Getting Started",
+      "pages": [
+        "docs/introduction",
+        "docs/quick_start",
+        "docs/installation"
+      ]
+    },
+    {
+      "group": "Platform Guides",
+      "pages": [
+        "docs/mac",
+        "docs/linux",
+        "docs/windows"
+      ]
+    },
+    {
+      "group": "Tunnels",
+      "pages": [
+        "docs/http_tunnels",
+        "docs/tls",
+        "docs/tcp",
+        "docs/regions"
+      ]
+    },
+    {
+      "group": "Monitoring",
+      "pages": [
+        "docs/requests",
+        "docs/logs",
+        "docs/webhooks"
+      ]
+    },
+    {
+      "group": "SDKs",
+      "pages": [
+        "docs/js",
+        "docs/python",
+        "docs/rust"
+      ]
+    },
+    {
+      "group": "Reference",
+      "pages": [
+        "docs/cli",
+        "docs/authentication",
+        "docs/layout"
+      ]
+    },
+    {
+      "group": "Self-Hosting",
+      "pages": [
+        "docs/provider"
+      ]
+    },
+    {
+      "group": "Troubleshooting",
+      "pages": [
+        "docs/troubleshooting",
+        "docs/debugging",
+        "docs/bugs"
+      ]
+    },
+    {
+      "group": "API Reference",
+      "pages": [
+        "api-reference/overview",
+        "api-reference/authentication",
+        "api-reference/tunnels/list",
+        "api-reference/tunnels/create",
+        "api-reference/tunnels/get",
+        "api-reference/tunnels/delete",
+        "api-reference/requests/list",
+        "api-reference/requests/get",
+        "api-reference/requests/replay",
+        "api-reference/tokens/list",
+        "api-reference/tokens/create",
+        "api-reference/tokens/delete",
+        "api-reference/health"
+      ]
+    }
+  ],
+  "footerSocials": {
+    "github": "https://github.com/Miransas/binboi",
+    "x-twitter": "https://x.com/miransas"
+  },
+  "feedback": {
+    "thumbsRating": true,
+    "suggestEdit": true,
+    "raiseIssue": true
+  },
+  "search": {
+    "prompt": "Search Binboi docs..."
+  },
+  "modeToggle": {
+    "default": "dark",
+    "isHidden": false
+  },
+  "backgroundImage": "/images/background.png",
+  "openapi": "openapi.yaml"
+}

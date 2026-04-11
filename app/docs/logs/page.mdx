@@ -1,0 +1,86 @@
+# Logs
+
+Binboi outputs structured logs for tunnel lifecycle events, incoming requests, errors, and connection state. This page explains where to find logs, how to control verbosity, and how to stream them for monitoring.
+
+## CLI Output
+
+When you run `binboi http 3000`, the CLI prints a concise log stream to stdout by default:
+
+```
+2026-04-12T10:00:00Z  INFO  tunnel started  url=https://abc.binboi.dev port=3000
+2026-04-12T10:00:05Z  INFO  request         method=GET path=/ status=200 duration=12ms
+2026-04-12T10:00:06Z  INFO  request         method=POST path=/api/data status=201 duration=34ms
+2026-04-12T10:00:10Z  WARN  upstream error  path=/api/slow status=504 duration=5001ms
+```
+
+Each line is prefixed with an ISO timestamp, log level, event name, and key-value fields.
+
+## Log Levels
+
+| Level | Description |
+|---|---|
+| `DEBUG` | Verbose — connection negotiation, TLS handshakes, raw bytes |
+| `INFO` | Default — tunnel events, requests, responses |
+| `WARN` | Non-fatal errors — upstream timeouts, retried connections |
+| `ERROR` | Fatal errors — authentication failure, port unreachable |
+
+Set the log level with `--log-level`:
+
+```bash
+binboi http 3000 --log-level debug
+binboi http 3000 --log-level warn
+```
+
+## Log Format
+
+Switch to JSON output for log aggregation tools (Datadog, Loki, CloudWatch, etc.):
+
+```bash
+binboi http 3000 --log-format json
+```
+
+Output:
+
+```json
+{"time":"2026-04-12T10:00:00Z","level":"INFO","event":"request","method":"GET","path":"/","status":200,"duration_ms":12}
+```
+
+## Writing Logs to a File
+
+```bash
+binboi http 3000 --log-file /var/log/binboi.log
+```
+
+Log rotation is not handled by the CLI. Use `logrotate` or a log collector on Linux, or redirect stdout to a rolling file appender in your process manager.
+
+## Streaming Logs from the Server
+
+If you are running a Binboi server (see [Provider](/docs/provider)), you can stream server-side logs for all active tunnels:
+
+```bash
+binboi server logs --follow
+binboi server logs --follow --tunnel myapp
+```
+
+## Request Logs
+
+Request-level logs (headers, bodies, response codes) are also viewable in the local request inspector at `http://localhost:4040`. See [Requests](/docs/requests) for details.
+
+## systemd Journal
+
+When running under systemd, logs are written to the journal and accessible via:
+
+```bash
+journalctl -u binboi-tunnel -f
+journalctl -u binboi-tunnel --since "1 hour ago"
+```
+
+## Common Log Messages
+
+| Message | Meaning |
+|---|---|
+| `tunnel started` | Tunnel is online and accepting requests |
+| `tunnel reconnecting` | Connection to server was lost; CLI is retrying |
+| `upstream unreachable` | Your local service is not running on the configured port |
+| `auth token expired` | Re-run `binboi login` to refresh your token |
+| `subdomain already in use` | Another session holds this subdomain; use `--subdomain` with a different name |

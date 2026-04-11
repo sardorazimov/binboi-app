@@ -1,0 +1,110 @@
+# macOS Setup
+
+This guide covers everything you need to run Binboi on macOS, including Gatekeeper handling, shell configuration, and running tunnels as a background service.
+
+## Install
+
+**Homebrew (recommended)**
+
+```bash
+brew install binboi/tap/binboi
+```
+
+Homebrew handles PATH configuration automatically and makes upgrades easy with `brew upgrade binboi`.
+
+**Direct binary**
+
+```bash
+# Apple Silicon (M1 / M2 / M3)
+curl -fsSL https://dl.binboi.dev/latest/darwin-arm64/binboi \
+  -o /usr/local/bin/binboi && chmod +x /usr/local/bin/binboi
+
+# Intel
+curl -fsSL https://dl.binboi.dev/latest/darwin-amd64/binboi \
+  -o /usr/local/bin/binboi && chmod +x /usr/local/bin/binboi
+```
+
+## Gatekeeper
+
+The first time you run a binary downloaded outside the App Store, macOS may show:
+
+> "binboi" cannot be opened because it is from an unidentified developer.
+
+Remove the quarantine attribute:
+
+```bash
+xattr -d com.apple.quarantine /usr/local/bin/binboi
+```
+
+Alternatively, go to **System Settings → Privacy & Security** and click **Allow Anyway**. Binaries installed via Homebrew or npm are never quarantined.
+
+## Shell Configuration
+
+If `binboi` is not found after a manual install, add `/usr/local/bin` to your PATH:
+
+```bash
+# zsh (default on macOS Catalina+)
+echo 'export PATH="/usr/local/bin:$PATH"' >> ~/.zshrc && source ~/.zshrc
+
+# bash
+echo 'export PATH="/usr/local/bin:$PATH"' >> ~/.bash_profile && source ~/.bash_profile
+```
+
+## Login
+
+```bash
+binboi login --server https://binboi.example.com
+```
+
+Your token is stored at `~/.binboi/config.json` and reused for every future command.
+
+## Running as a Background Service (launchd)
+
+Create a launchd plist to start a tunnel automatically on login:
+
+```bash
+mkdir -p ~/Library/LaunchAgents
+cat > ~/Library/LaunchAgents/dev.binboi.tunnel.plist << 'EOF'
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>dev.binboi.tunnel</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/local/bin/binboi</string>
+    <string>http</string>
+    <string>3000</string>
+    <string>--subdomain</string>
+    <string>myapp</string>
+  </array>
+  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key><true/>
+  <key>StandardOutPath</key><string>/tmp/binboi.log</string>
+  <key>StandardErrorPath</key><string>/tmp/binboi.err</string>
+</dict>
+</plist>
+EOF
+
+launchctl load ~/Library/LaunchAgents/dev.binboi.tunnel.plist
+```
+
+Check status and stop the service:
+
+```bash
+launchctl list | grep binboi
+tail -f /tmp/binboi.log
+
+# Stop
+launchctl unload ~/Library/LaunchAgents/dev.binboi.tunnel.plist
+```
+
+## Troubleshooting
+
+| Problem | Solution |
+|---|---|
+| `command not found: binboi` | Check PATH, re-run `source ~/.zshrc` |
+| Gatekeeper blocks binary | `xattr -d com.apple.quarantine $(which binboi)` |
+| Tunnel drops after sleep | Use the launchd service or disable automatic sleep |
+| Port 4040 already in use | `binboi http 3000 --inspect-port 4041` |

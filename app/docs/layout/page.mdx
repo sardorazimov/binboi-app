@@ -1,0 +1,89 @@
+# Dashboard Layout
+
+The Binboi web dashboard gives you a visual overview of active tunnels, request traffic, account settings, and team management. This page describes the dashboard's navigation and key sections.
+
+## Accessing the Dashboard
+
+The dashboard is served from your Binboi server:
+
+```
+https://tunnel.example.com/dashboard
+```
+
+Log in with the same credentials you use for the CLI. If your server uses token auth, the dashboard accepts the same token.
+
+## Top Navigation Bar
+
+| Element | Description |
+|---|---|
+| **Logo** | Returns to the dashboard home |
+| **Tunnels** | View all active and recently closed tunnels |
+| **Requests** | Live request feed across all your tunnels |
+| **Team** | Manage members and tokens (admin only) |
+| **Settings** | Account and server configuration |
+| **Docs** | Link to this documentation |
+
+## Tunnels Page
+
+The Tunnels page lists every tunnel associated with your account:
+
+- **Status badge** — `online`, `offline`, or `error`
+- **Public URL** — click to open in a new tab
+- **Forwarding target** — the local host:port being forwarded
+- **Region** — where the tunnel edge node is located
+- **Start time** — when the tunnel was created
+- **Request count** — total requests processed this session
+
+Click any tunnel to open its detail view with a live request feed.
+
+## Requests Page
+
+The Requests page shows a real-time stream of every HTTP request across all your active tunnels. Each row shows:
+
+- Method and path
+- HTTP status code (color-coded: green 2xx, yellow 3xx, red 4xx/5xx)
+- Latency
+- Tunnel name and timestamp
+
+Click a row to expand the full request and response details — headers, body, and response.
+
+You can filter by tunnel, method, status code range, or path prefix using the filter bar at the top.
+
+## Request Detail Panel
+
+When you expand a request, you see:
+
+- **Request tab** — full URL, headers, and body (with syntax highlighting for JSON)
+- **Response tab** — status, headers, and body
+- **Replay button** — re-send the exact request to your local service
+- **Copy as cURL** — generates a `curl` command you can paste into a terminal
+
+## Settings Page
+
+### Personal Settings
+
+- **Auth tokens** — generate, name, and revoke tokens for CLI and SDK access
+- **Default region** — set your preferred region for new tunnels
+- **Profile** — display name and email (when using OAuth)
+
+### Server Settings (admin only)
+
+- **Allowed domains** — configure wildcard or custom domains accepted by the server
+- **TCP port range** — the range of ports available for TCP tunnels
+- **Token management** — create and revoke tokens for all team members
+- **TLS certificates** — view certificate status and force renewal for custom domains
+- **Audit log** — see all login events and tunnel activity across the team
+
+## Team Management (admin only)
+
+Navigate to **Team** to:
+
+1. Invite members by email (OAuth mode) or issue them a pre-shared token
+2. Assign roles — `admin` can manage the server, `member` can only create tunnels
+3. Revoke access by deleting a token or removing a member
+
+## Local Inspector vs Dashboard
+
+The **local inspector** (`http://localhost:4040`) runs on your machine and only shows requests for tunnels running in that CLI session.
+
+The **web dashboard** is server-side and shows all tunnels and requests across your account and team, including historical data.

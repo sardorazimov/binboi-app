@@ -1,0 +1,175 @@
+# JavaScript / Node.js SDK
+
+The Binboi JavaScript SDK lets you open and manage tunnels programmatically from your Node.js applications. It is useful for integration tests, development servers, and tools that need a public URL at runtime.
+
+## Installation
+
+```bash
+npm install @binboi/sdk
+# or
+yarn add @binboi/sdk
+# or
+pnpm add @binboi/sdk
+```
+
+## Authenticate
+
+Configure the SDK with your auth token and server address. Set these as environment variables:
+
+```bash
+export BINBOI_TOKEN=tok_alice_abc123
+export BINBOI_SERVER=https://tunnel.example.com
+```
+
+Or pass them directly:
+
+```typescript
+import { Binboi } from '@binboi/sdk';
+
+const binboi = new Binboi({
+  token: 'tok_alice_abc123',
+  server: 'https://tunnel.example.com',
+});
+```
+
+## Opening an HTTP Tunnel
+
+```typescript
+import { Binboi } from '@binboi/sdk';
+
+const binboi = new Binboi();
+
+async function main() {
+  const tunnel = await binboi.http({
+    addr: 3000,
+    subdomain: 'myapp',
+  });
+
+  console.log(`Tunnel URL: ${tunnel.url}`);
+  // Tunnel URL: https://myapp.tunnel.example.com
+
+  // Close the tunnel when done
+  await tunnel.close();
+}
+
+main();
+```
+
+## Integrating with Express
+
+```typescript
+import express from 'express';
+import { Binboi } from '@binboi/sdk';
+
+const app = express();
+const binboi = new Binboi();
+
+app.get('/', (req, res) => res.send('Hello from local!'));
+
+const server = app.listen(3000, async () => {
+  const tunnel = await binboi.http({ addr: 3000 });
+  console.log(`Public URL: ${tunnel.url}`);
+});
+
+// Graceful shutdown
+process.on('SIGINT', async () => {
+  await binboi.closeAll();
+  server.close();
+});
+```
+
+## Opening a TCP Tunnel
+
+```typescript
+const tunnel = await binboi.tcp({
+  addr: 5432,
+  remotePort: 15432,
+});
+
+console.log(`TCP endpoint: ${tunnel.addr}`);
+// TCP endpoint: tunnel.example.com:15432
+```
+
+## Listening Directly (No Separate Server)
+
+The SDK can open a tunnel and handle connections directly — no separate `listen()` call needed:
+
+```typescript
+import { Binboi } from '@binboi/sdk';
+import http from 'http';
+
+const binboi = new Binboi();
+const tunnel = await binboi.listen({ addr: 0 }); // port 0 = auto
+
+const server = http.createServer((req, res) => {
+  res.end('Hello!');
+});
+
+server.listen(tunnel.localPort);
+console.log(`Public URL: ${tunnel.url}`);
+```
+
+## Tunnel Options
+
+```typescript
+const tunnel = await binboi.http({
+  addr: 3000,              // Local port to forward
+  subdomain: 'myapp',      // Reserved subdomain (optional)
+  hostname: 'dev.my.com',  // Custom domain (optional)
+  region: 'eu-west',       // Region (optional)
+  inspect: false,          // Disable local inspector (optional)
+  metadata: { env: 'test' }, // Arbitrary metadata
+});
+```
+
+## Events
+
+```typescript
+const tunnel = await binboi.http({ addr: 3000 });
+
+tunnel.on('request', (req) => {
+  console.log(`${req.method} ${req.path} → ${req.status}`);
+});
+
+tunnel.on('close', () => {
+  console.log('Tunnel closed');
+});
+
+tunnel.on('error', (err) => {
+  console.error('Tunnel error:', err.message);
+});
+```
+
+## Use in Tests (Jest / Vitest)
+
+```typescript
+import { Binboi } from '@binboi/sdk';
+
+let tunnel;
+const binboi = new Binboi();
+
+beforeAll(async () => {
+  tunnel = await binboi.http({ addr: 3000 });
+});
+
+afterAll(async () => {
+  await tunnel.close();
+});
+
+test('webhook endpoint is reachable', async () => {
+  const res = await fetch(`${tunnel.url}/webhook`, {
+    method: 'POST',
+    body: JSON.stringify({ event: 'test' }),
+    headers: { 'Content-Type': 'application/json' },
+  });
+  expect(res.status).toBe(200);
+});
+```
+
+## TypeScript Support
+
+The SDK ships full TypeScript types. No `@types` package needed.
+
+```typescript
+import type { HttpTunnel, TcpTunnel, TunnelOptions } from '@binboi/sdk';
+```

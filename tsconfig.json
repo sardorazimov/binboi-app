@@ -29,6 +29,6 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts"
-, "app/docs/introduction/page.mdx"  ],
+, "app/docs/introduction/page.mdx", "app/docs/api/page.mdx", "app/docs/authentication/page.mdx", "app/docs/bugs/page.mdx", "app/docs/cli/page.mdx", "app/docs/debugging/page.mdx", "app/docs/http_tunnels/page.mdx", "app/docs/installation/page.mdx"  ],
   "exclude": ["node_modules"]
 }

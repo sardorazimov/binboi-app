@@ -1,0 +1,190 @@
+# Rust SDK
+
+The Binboi Rust SDK provides async tunnel management via Tokio. Use it to embed tunnels directly in Rust applications, integration tests, or CLI tools.
+
+## Add the Dependency
+
+```toml
+# Cargo.toml
+[dependencies]
+binboi = "1"
+tokio = { version = "1", features = ["full"] }
+```
+
+## Authentication
+
+Set environment variables before running your application:
+
+```bash
+export BINBOI_TOKEN=tok_alice_abc123
+export BINBOI_SERVER=https://tunnel.example.com
+```
+
+Or configure in code:
+
+```rust
+use binboi::Client;
+
+let client = Client::builder()
+    .token("tok_alice_abc123")
+    .server("https://tunnel.example.com")
+    .build()
+    .await?;
+```
+
+## Opening an HTTP Tunnel
+
+```rust
+use binboi::Client;
+
+#[tokio::main]
+async fn main() -> anyhow::Result<()> {
+    let client = Client::from_env().await?;
+
+    let tunnel = client
+        .http()
+        .addr(3000)
+        .subdomain("myapp")
+        .start()
+        .await?;
+
+    println!("Tunnel URL: {}", tunnel.url());
+
+    // Keep alive until Ctrl-C
+    tokio::signal::ctrl_c().await?;
+    tunnel.close().await?;
+
+    Ok(())
+}
+```
+
+## Integrating with Axum
+
+```rust
+use axum::{routing::post, Json, Router};
+use binboi::Client;
+use serde_json::{json, Value};
+use std::net::SocketAddr;
+
+#[tokio::main]
+async fn main() -> anyhow::Result<()> {
+    let app = Router::new().route("/webhook", post(handle_webhook));
+
+    let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
+    let listener = tokio::net::TcpListener::bind(addr).await?;
+
+    // Open Binboi tunnel
+    let client = Client::from_env().await?;
+    let tunnel = client.http().addr(3000).subdomain("axum-app").start().await?;
+    println!("Public URL: {}", tunnel.url());
+
+    axum::serve(listener, app).await?;
+    Ok(())
+}
+
+async fn handle_webhook(Json(body): Json<Value>) -> Json<Value> {
+    println!("Received: {body}");
+    Json(json!({ "ok": true }))
+}
+```
+
+## TCP Tunnels
+
+```rust
+let tunnel = client
+    .tcp()
+    .addr(5432)
+    .remote_port(15432)
+    .start()
+    .await?;
+
+println!("TCP endpoint: {}", tunnel.addr());
+// TCP endpoint: tunnel.example.com:15432
+```
+
+## Tunnel Options
+
+```rust
+let tunnel = client
+    .http()
+    .addr(3000)
+    .subdomain("myapp")           // Reserved subdomain
+    .hostname("dev.my.com")       // Custom domain
+    .region("eu-west")            // Region
+    .inspect(false)               // Disable local inspector
+    .start()
+    .await?;
+```
+
+## Listening Directly
+
+The SDK can accept connections itself without binding a separate TCP socket:
+
+```rust
+use binboi::Client;
+use tokio::io::{AsyncReadExt, AsyncWriteExt};
+
+#[tokio::main]
+async fn main() -> anyhow::Result<()> {
+    let client = Client::from_env().await?;
+    let mut listener = client.http().listen().await?;
+
+    println!("Public URL: {}", listener.url());
+
+    while let Some(mut conn) = listener.accept().await {
+        tokio::spawn(async move {
+            let response = b"HTTP/1.1 200 OK\r\nContent-Length: 5\r\n\r\nHello";
+            conn.write_all(response).await.ok();
+        });
+    }
+
+    Ok(())
+}
+```
+
+## Use in Tests
+
+```rust
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use binboi::Client;
+
+    #[tokio::test]
+    async fn test_webhook_endpoint() {
+        let client = Client::from_env().await.unwrap();
+        let tunnel = client.http().addr(3000).start().await.unwrap();
+
+        let res = reqwest::Client::new()
+            .post(format!("{}/webhook", tunnel.url()))
+            .json(&serde_json::json!({ "event": "test" }))
+            .send()
+            .await
+            .unwrap();
+
+        assert_eq!(res.status(), 200);
+        tunnel.close().await.unwrap();
+    }
+}
+```
+
+## Error Handling
+
+```rust
+use binboi::{Client, Error};
+
+match client.http().addr(3000).subdomain("taken").start().await {
+    Ok(tunnel) => println!("URL: {}", tunnel.url()),
+    Err(Error::SubdomainInUse(name)) => eprintln!("Subdomain '{name}' is taken"),
+    Err(Error::Auth(msg)) => eprintln!("Auth error: {msg}"),
+    Err(e) => eprintln!("Error: {e}"),
+}
+```
+
+## Feature Flags
+
+| Feature | Description | Default |
+|---|---|---|
+| `default` | HTTP and TCP tunnels, Tokio runtime | enabled |
+| `tls-native` | Use native OS TLS (SChannel / Secure Transport) | disabled |
+| `tls-rustls` | Use rustls instead of OpenSSL | disabled |

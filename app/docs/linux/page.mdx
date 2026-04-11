@@ -1,0 +1,121 @@
+# Linux Setup
+
+Install and configure Binboi on Linux, including systemd service setup for persistent tunnels.
+
+## Install
+
+**Install script (recommended)**
+
+```bash
+curl -fsSL https://dl.binboi.dev/install.sh | sh
+```
+
+The script auto-detects architecture, downloads the binary to `/usr/local/bin/binboi`, and sets execute permissions.
+
+**Manual download**
+
+```bash
+# x86_64
+curl -fsSL https://dl.binboi.dev/latest/linux-amd64/binboi \
+  -o /usr/local/bin/binboi && chmod +x /usr/local/bin/binboi
+
+# arm64
+curl -fsSL https://dl.binboi.dev/latest/linux-arm64/binboi \
+  -o /usr/local/bin/binboi && chmod +x /usr/local/bin/binboi
+```
+
+**APT (Debian / Ubuntu)**
+
+```bash
+echo "deb [trusted=yes] https://apt.binboi.dev stable main" \
+  | sudo tee /etc/apt/sources.list.d/binboi.list
+sudo apt update && sudo apt install binboi
+```
+
+**RPM (Fedora / RHEL / CentOS)**
+
+```bash
+sudo rpm -i https://dl.binboi.dev/latest/binboi.rpm
+```
+
+## Verify
+
+```bash
+binboi --version
+# binboi 1.0.0
+```
+
+## Login
+
+```bash
+binboi login --server https://binboi.example.com
+# or with a pre-shared token:
+binboi login --token YOUR_AUTH_TOKEN --server https://binboi.example.com
+```
+
+## Running as a systemd Service
+
+For headless servers or CI environments, run the tunnel as a systemd unit:
+
+```bash
+sudo tee /etc/systemd/system/binboi-tunnel.service > /dev/null << 'EOF'
+[Unit]
+Description=Binboi HTTP Tunnel
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/binboi http 3000 --subdomain myapp
+Restart=on-failure
+RestartSec=5
+User=ubuntu
+Environment=HOME=/home/ubuntu
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo systemctl daemon-reload
+sudo systemctl enable --now binboi-tunnel
+```
+
+Check status:
+
+```bash
+systemctl status binboi-tunnel
+journalctl -u binboi-tunnel -f
+```
+
+Stop or restart:
+
+```bash
+sudo systemctl stop binboi-tunnel
+sudo systemctl restart binboi-tunnel
+```
+
+## Running Without Root
+
+If you cannot write to `/usr/local/bin`, install to `~/.local/bin` instead:
+
+```bash
+mkdir -p ~/.local/bin
+curl -fsSL https://dl.binboi.dev/latest/linux-amd64/binboi \
+  -o ~/.local/bin/binboi && chmod +x ~/.local/bin/binboi
+
+# Add to PATH if not already there
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc && source ~/.bashrc
+```
+
+## Firewall Notes
+
+Binboi makes **outbound** connections only — no inbound firewall rules are required. The CLI connects to your Binboi server on port 443 (or a custom port). Ensure outbound TCP on port 443 is allowed.
+
+## Troubleshooting
+
+| Problem | Solution |
+|---|---|
+| `Permission denied` on binary | `chmod +x /usr/local/bin/binboi` |
+| `GLIBC_2.xx not found` | Use the static binary: append `?variant=musl` to the download URL |
+| Tunnel not reconnecting | Check systemd `Restart=on-failure` is set and network is up |
+| DNS resolution fails | Set `--dns-resolver` flag or check `/etc/resolv.conf` |

@@ -1,0 +1,87 @@
+# Quick Start
+
+Get your first public HTTPS URL in under two minutes.
+
+## Prerequisites
+
+- Node.js 18+ or a supported package manager (npm, Homebrew, or a binary download)
+- A running Binboi server, or access to a shared one — see [Provider](/docs/provider)
+
+---
+
+## Step 1 — Install the CLI
+
+Choose the method that matches your platform:
+
+```bash
+# npm (all platforms)
+npm install -g @binboi/cli
+
+# Homebrew (macOS / Linux)
+brew install binboi/tap/binboi
+
+# Direct binary (Linux x64)
+curl -fsSL https://dl.binboi.dev/install.sh | sh
+```
+
+Verify the install:
+
+```bash
+binboi --version
+# binboi 1.0.0
+```
+
+---
+
+## Step 2 — Log In
+
+Authenticate against your Binboi server. Replace the URL with your own server's address.
+
+```bash
+binboi login --server https://binboi.example.com
+```
+
+A browser window opens and asks you to authorize the CLI. After approval, your auth token is stored at `~/.binboi/config.json` and reused automatically for every subsequent command.
+
+If your server uses a pre-shared token instead of browser auth:
+
+```bash
+binboi login --token YOUR_AUTH_TOKEN --server https://binboi.example.com
+```
+
+---
+
+## Step 3 — Expose Port 3000
+
+Start your local dev server (e.g. `npm run dev`), then open a tunnel to it:
+
+```bash
+binboi http 3000
+```
+
+You will see output like this:
+
+```
+Tunnel started
+  Public URL : https://abc123.binboi.dev
+  Forwarding : https://abc123.binboi.dev → http://localhost:3000
+  Status     : online
+  Region     : us-east
+
+Press Ctrl+C to stop
+```
+
+Open `https://abc123.binboi.dev` in any browser or share it with a teammate — requests are forwarded live to your local machine.
+
+---
+
+## What's Next?
+
+- Keep the tunnel alive with a **reserved subdomain** so the URL never changes between sessions:
+  ```bash
+  binboi http 3000 --subdomain myapp
+  # https://myapp.binboi.dev
+  ```
+- Inspect every request in real time at `http://localhost:4040` (the local dashboard).
+- Use `binboi tcp 5432` to expose a database or other TCP service.
+- Integrate tunnels directly in code with the [JavaScript SDK](/docs/js), [Python SDK](/docs/python), or [Rust SDK](/docs/rust).

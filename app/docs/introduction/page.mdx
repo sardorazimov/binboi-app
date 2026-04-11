@@ -1,8 +1,51 @@
+# Introduction
 
-const page = () => {
-  return (
-    <div>page</div>
-  )
-}
+Binboi is a self-hosted tunneling tool that exposes your local services to the internet via secure public URLs. Think of it as your own private ngrok — one you run on your infrastructure, under your control.
 
-export default page
+## What is Binboi?
+
+When you run a web server locally on `localhost:3000`, only your machine can reach it. Binboi creates an encrypted tunnel from a public URL on the internet to your local port, so teammates, external APIs, and webhook providers can all reach your service instantly — no firewall changes, no static IP, no deployment required.
+
+Binboi is designed for developers who want:
+
+- **Full ownership** — host the server yourself, your data never touches a third party
+- **HTTPS by default** — every tunnel gets a valid TLS certificate automatically
+- **Team access** — share stable subdomains with your team during development
+- **Webhook debugging** — inspect and replay incoming HTTP requests in real time
+
+## How It Works
+
+```
+Your Machine                 Binboi Server              Public Internet
+─────────────               ─────────────────          ─────────────────
+localhost:3000  ──tunnel──▶  binboi.example.com  ◀────  https://abc.binboi.dev
+```
+
+1. The Binboi CLI opens a persistent, encrypted connection to your Binboi server.
+2. The server assigns a public subdomain (e.g. `abc.binboi.dev`) to that connection.
+3. Incoming HTTPS requests are forwarded through the tunnel to your local port.
+4. Responses travel back through the same tunnel to the caller.
+
+The tunnel uses a multiplexed TCP connection under the hood, so there is no polling — latency is near real-time.
+
+## Key Features
+
+- **HTTP & HTTPS tunnels** — expose any HTTP service with automatic TLS termination
+- **TCP tunnels** — forward raw TCP traffic for databases, SSH, game servers, and more
+- **Request inspector** — view headers, bodies, and response codes for every request
+- **Webhook replayer** — re-send any captured request without triggering the original source
+- **Custom subdomains** — use reserved names like `myapp.binboi.dev` across sessions
+- **Multiple regions** — route traffic through the region closest to your users
+- **CLI + SDKs** — first-class support for JavaScript, Python, and Rust
+
+## Self-Hosted vs. Managed
+
+Binboi is built to be self-hosted. You run the Binboi server process on any VPS or cloud instance with a public IP. Your team then authenticates against your server, and all tunnel traffic stays within your infrastructure.
+
+If you just want to get started quickly without running your own server, see the [Provider guide](/docs/provider) for setup instructions.
+
+## Next Steps
+
+- [Quick Start](/docs/quick_start) — expose your first local port in under two minutes
+- [Installation](/docs/installation) — install the CLI on your platform
+- [Authentication](/docs/authentication) — log in and manage your auth tokens

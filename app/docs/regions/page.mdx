@@ -1,0 +1,89 @@
+# Regions
+
+Binboi can route tunnel traffic through different server regions to minimize latency between your users and the tunnel entry point. This page explains how regions work and how to select them.
+
+## Available Regions
+
+| Region | Identifier | Location |
+|---|---|---|
+| US East | `us-east` | Virginia, USA |
+| US West | `us-west` | Oregon, USA |
+| Europe West | `eu-west` | Frankfurt, Germany |
+| Asia Pacific | `ap-southeast` | Singapore |
+| Australia | `ap-southeast-2` | Sydney, Australia |
+
+> Regions available depend on how your Binboi server is deployed. When self-hosting, you configure which regions are active. See [Provider](/docs/provider).
+
+## Selecting a Region
+
+Pass `--region` when starting a tunnel:
+
+```bash
+binboi http 3000 --region eu-west
+```
+
+To set a default region for all tunnels, add it to your config file (`~/.binboi/config.yaml`):
+
+```yaml
+region: eu-west
+```
+
+## How Region Routing Works
+
+When you specify a region, the CLI connects to the edge node in that region. Incoming requests from the internet are accepted at the regional edge and forwarded through the persistent tunnel to your machine.
+
+```
+End User (Europe)
+    │  HTTPS
+    ▼
+eu-west edge node  ──  encrypted tunnel  ──▶  Your Machine
+```
+
+Choosing the region closest to your end users reduces the TLS handshake overhead and first-byte latency they experience.
+
+## Latency Check
+
+You can check which region has the lowest round-trip time from your machine:
+
+```bash
+binboi ping --all-regions
+```
+
+Example output:
+
+```
+us-east       18ms
+us-west       62ms
+eu-west      105ms
+ap-southeast 230ms
+```
+
+## Multi-Region Tunnels
+
+You can start the same tunnel in multiple regions simultaneously to serve users from the best edge:
+
+```bash
+binboi http 3000 --subdomain myapp --region us-east --region eu-west
+```
+
+Binboi will create two tunnel sessions. DNS-based load balancing (GeoDNS) at the server level routes each user to the nearest active region. This requires the Binboi server to be configured with multi-region DNS support.
+
+## Default Behavior (No Region Specified)
+
+When `--region` is omitted, the CLI connects to the server defined in your config (`~/.binboi/config.json`) and the server chooses the best available edge node based on latency.
+
+## Self-Hosted Region Configuration
+
+When running your own Binboi server, define regions in the server config:
+
+```yaml
+regions:
+  - id: us-east
+    addr: "0.0.0.0:443"
+    advertised_addr: "tunnel.us-east.example.com:443"
+  - id: eu-west
+    addr: "0.0.0.0:443"
+    advertised_addr: "tunnel.eu-west.example.com:443"
+```
+
+Each region entry requires a public DNS record pointing to the corresponding server instance. See [Provider](/docs/provider) for the full server configuration reference.

@@ -1,0 +1,191 @@
+# Binboi
+
+> Binboi is a self-hosted tunneling tool. It exposes local services (HTTP, HTTPS, TCP) to the internet via public URLs with automatic TLS, a request inspector, webhook replay, and team management — all under your own infrastructure.
+
+## What Binboi does
+
+- Creates encrypted tunnels from a public URL to a local port (e.g. `localhost:3000`)
+- Provisions TLS certificates automatically via ACME (Let's Encrypt or custom CA)
+- Provides a local request inspector at `http://localhost:4040` — live request/response viewer with replay
+- Supports TCP tunnels for databases, SSH, and raw TCP services
+- Ships first-class SDKs for JavaScript/Node.js, Python, and Rust
+- Is entirely self-hosted: you run the server on your own VPS; your traffic never touches a third party
+
+## CLI quick reference
+
+```bash
+# Install
+npm install -g @binboi/cli
+
+# Authenticate
+binboi login --server https://tunnel.example.com
+binboi login --token YOUR_TOKEN --server https://tunnel.example.com
+
+# HTTP tunnel
+binboi http 3000
+binboi http 3000 --subdomain myapp
+binboi http 3000 --hostname dev.mycompany.com
+binboi http 3000 --region eu-west
+binboi http 3000 --basic-auth "user:pass"
+binboi http 3000 --allow-cidr 10.0.0.0/8
+binboi http 3000 --no-https-redirect
+binboi http 3000 --inspect-port 4041
+
+# TCP tunnel
+binboi tcp 5432
+binboi tcp 5432 --remote-port 15432
+binboi tcp 22 --subdomain myssh
+
+# TLS passthrough tunnel (no termination)
+binboi tls 443
+
+# Start all tunnels defined in config file
+binboi start --all
+binboi start frontend backend
+
+# Replay captured requests
+binboi replay last
+binboi replay req_abc123
+binboi replay req_abc123 --header "X-Debug: true"
+
+# Diagnostics
+binboi ping
+binboi ping --all-regions
+binboi tunnels list
+binboi tunnels stop <tunnel-id>
+binboi config show
+binboi diagnose
+
+# TLS management
+binboi tls renew --hostname dev.mycompany.com
+binboi tls status --hostname dev.mycompany.com
+
+# Server (provider) commands
+binboi server logs --follow
+binboi server status
+```
+
+## REST API (base: /api/v1)
+
+All endpoints require `Authorization: Bearer <token>` unless noted.
+
+### Tunnels
+- `GET    /api/v1/tunnels`               — list active tunnels for the authenticated user
+- `POST   /api/v1/tunnels`               — create a new tunnel session
+- `GET    /api/v1/tunnels/{id}`          — get tunnel by ID
+- `DELETE /api/v1/tunnels/{id}`          — close a tunnel
+- `GET    /api/v1/tunnels/{id}/requests` — list captured requests for a tunnel
+
+### Requests
+- `GET    /api/v1/requests`              — list recent captured requests (all tunnels)
+- `GET    /api/v1/requests/{id}`         — get full request/response detail
+- `POST   /api/v1/requests/{id}/replay`  — replay a captured request
+
+### Authentication
+- `POST   /api/v1/auth/login`            — exchange credentials for a token (no auth header)
+- `POST   /api/v1/auth/logout`           — revoke current token
+- `GET    /api/v1/tokens`                — list all tokens for the authenticated user
+- `POST   /api/v1/tokens`                — create a new token
+- `DELETE /api/v1/tokens/{id}`           — revoke a token by ID
+
+### Team (admin only)
+- `GET    /api/v1/team/members`          — list team members
+- `POST   /api/v1/team/members`          — invite a member / issue a token
+- `DELETE /api/v1/team/members/{id}`     — remove a member
+
+### Server
+- `GET    /api/v1/health`                — server health check (no auth required)
+- `GET    /api/v1/metrics`               — Prometheus-format metrics (no auth required)
+
+## SDK usage
+
+### JavaScript / Node.js
+```typescript
+import { Binboi } from '@binboi/sdk';
+
+const client = new Binboi({ token: process.env.BINBOI_TOKEN });
+const tunnel = await client.http({ addr: 3000, subdomain: 'myapp' });
+console.log(tunnel.url); // https://myapp.tunnel.example.com
+await tunnel.close();
+```
+
+### Python
+```python
+import binboi
+client = binboi.Client()
+with client.http(addr=3000, subdomain="myapp") as tunnel:
+    print(tunnel.url)
+```
+
+### Rust
+```rust
+use binboi::Client;
+let client = Client::from_env().await?;
+let tunnel = client.http().addr(3000).subdomain("myapp").start().await?;
+println!("{}", tunnel.url());
+```
+
+## Key concepts
+
+- **Tunnel** — a persistent, multiplexed connection from the Binboi server to the CLI on your machine. Incoming requests are forwarded through this connection to your local port.
+- **Subdomain** — the `<name>` in `<name>.binboi.dev`. Can be random (auto-assigned) or reserved (stable across sessions).
+- **Inspector** — the local HTTP dashboard at `localhost:4040` that shows every request/response for running tunnels.
+- **Region** — the geographic edge node where tunnel connections are accepted. Choosing the closest region to your users reduces latency.
+- **Provider** — the self-hosted Binboi server. Configured via `/etc/binboi/server.yaml`. Requires a public IP, a domain with wildcard DNS, and outbound port 443.
+- **Token** — an auth credential. Stored in `~/.binboi/config.json` after `binboi login`. Can also be set via the `BINBOI_TOKEN` environment variable.
+
+## Configuration file (~/.binboi/config.yaml)
+
+```yaml
+server: https://tunnel.example.com
+token: tok_alice_abc123
+region: us-east
+
+tunnels:
+  frontend:
+    proto: http
+    addr: 3000
+    subdomain: myapp-frontend
+  api:
+    proto: http
+    addr: 8080
+    subdomain: myapp-api
+  db:
+    proto: tcp
+    addr: 5432
+    remote_port: 15432
+```
+
+## Environment variables
+
+| Variable            | Description                          |
+|---------------------|--------------------------------------|
+| `BINBOI_TOKEN`      | Auth token (overrides config file)   |
+| `BINBOI_SERVER`     | Server URL (overrides config file)   |
+| `BINBOI_REGION`     | Default region                       |
+| `BINBOI_LOG_LEVEL`  | Log level: debug, info, warn, error  |
+| `BINBOI_LOG_FORMAT` | Log format: text, json               |
+
+## Self-hosting (provider)
+
+Run the Binboi server with Docker:
+
+```bash
+docker run -d \
+  --name binboi-server \
+  -p 80:80 -p 443:443 -p 4443:4443 \
+  -v /etc/binboi:/etc/binboi \
+  -e BINBOI_DOMAIN=tunnel.example.com \
+  -e BINBOI_AUTH_TOKEN=change_me \
+  ghcr.io/binboi/server:latest
+```
+
+Requires:
+- DNS: `A tunnel.example.com → <server-ip>` and `A *.tunnel.example.com → <server-ip>`
+- Ports 80 and 443 open for inbound (ACME challenge + tunnel connections)
+
+## Links
+
+- Docs: https://binboi.dev/docs
+- GitHub: https://github.com/Miransas/binboi
+- Built by Miransas: https://miransas.com

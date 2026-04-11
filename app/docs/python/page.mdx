@@ -1,0 +1,188 @@
+# Python SDK
+
+The Binboi Python SDK lets you open tunnels from Python applications. It works with any Python web framework — Flask, FastAPI, Django, or plain `http.server`.
+
+## Installation
+
+```bash
+pip install binboi
+```
+
+## Authentication
+
+```bash
+export BINBOI_TOKEN=tok_alice_abc123
+export BINBOI_SERVER=https://tunnel.example.com
+```
+
+Or configure in code:
+
+```python
+import binboi
+
+client = binboi.Client(
+    token="tok_alice_abc123",
+    server="https://tunnel.example.com",
+)
+```
+
+## Opening an HTTP Tunnel
+
+```python
+import binboi
+
+client = binboi.Client()
+
+tunnel = client.http(addr=3000, subdomain="myapp")
+print(f"Tunnel URL: {tunnel.url}")
+# Tunnel URL: https://myapp.tunnel.example.com
+
+# Close when done
+tunnel.close()
+```
+
+## Context Manager
+
+Use a context manager to automatically close the tunnel:
+
+```python
+import binboi
+
+with binboi.Client() as client:
+    with client.http(addr=3000) as tunnel:
+        print(f"Public URL: {tunnel.url}")
+        input("Press Enter to stop...")
+```
+
+## Integrating with Flask
+
+```python
+from flask import Flask
+import binboi
+import threading
+
+app = Flask(__name__)
+
+@app.route("/webhook", methods=["POST"])
+def webhook():
+    return {"ok": True}
+
+if __name__ == "__main__":
+    client = binboi.Client()
+    tunnel = client.http(addr=5000, subdomain="flask-app")
+    print(f"Public URL: {tunnel.url}")
+
+    try:
+        app.run(port=5000)
+    finally:
+        tunnel.close()
+```
+
+## Integrating with FastAPI
+
+```python
+import asyncio
+import uvicorn
+from fastapi import FastAPI
+import binboi
+
+app = FastAPI()
+
+@app.post("/webhook")
+async def webhook(body: dict):
+    return {"received": True}
+
+async def main():
+    client = binboi.AsyncClient()
+    tunnel = await client.http(addr=8000)
+    print(f"Public URL: {tunnel.url}")
+
+    config = uvicorn.Config(app, port=8000, log_level="info")
+    server = uvicorn.Server(config)
+
+    try:
+        await server.serve()
+    finally:
+        await tunnel.close()
+
+asyncio.run(main())
+```
+
+## Async Support
+
+Use `binboi.AsyncClient` for async/await code:
+
+```python
+import asyncio
+import binboi
+
+async def main():
+    client = binboi.AsyncClient()
+    tunnel = await client.http(addr=3000)
+    print(f"Tunnel URL: {tunnel.url}")
+    await asyncio.sleep(60)
+    await tunnel.close()
+
+asyncio.run(main())
+```
+
+## TCP Tunnels
+
+```python
+import binboi
+
+client = binboi.Client()
+tunnel = client.tcp(addr=5432, remote_port=15432)
+print(f"TCP endpoint: {tunnel.addr}")
+# TCP endpoint: tunnel.example.com:15432
+tunnel.close()
+```
+
+## Tunnel Options
+
+```python
+tunnel = client.http(
+    addr=3000,
+    subdomain="myapp",        # Reserved subdomain (optional)
+    hostname="dev.my.com",    # Custom domain (optional)
+    region="eu-west",         # Region (optional)
+    inspect=False,            # Disable inspector (optional)
+)
+```
+
+## Use in Tests (pytest)
+
+```python
+import pytest
+import requests
+import binboi
+
+@pytest.fixture(scope="session")
+def tunnel():
+    client = binboi.Client()
+    t = client.http(addr=5000)
+    yield t
+    t.close()
+
+def test_webhook_endpoint(tunnel):
+    res = requests.post(
+        f"{tunnel.url}/webhook",
+        json={"event": "test"},
+    )
+    assert res.status_code == 200
+```
+
+## Error Handling
+
+```python
+from binboi import BinboiError, AuthError, SubdomainError
+
+try:
+    tunnel = client.http(addr=3000, subdomain="taken")
+except SubdomainError as e:
+    print(f"Subdomain unavailable: {e}")
+except AuthError as e:
+    print(f"Authentication failed: {e}")
+except BinboiError as e:
+    print(f"Tunnel error: {e}")
+```

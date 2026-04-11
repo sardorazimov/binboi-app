@@ -1,0 +1,180 @@
+# Self-Hosting Binboi (Provider)
+
+Binboi is designed to be self-hosted. This guide walks through deploying the Binboi server on your own infrastructure so your team can use it without routing traffic through any third party.
+
+## Requirements
+
+| Requirement | Minimum |
+|---|---|
+| OS | Linux (amd64 or arm64) |
+| RAM | 512 MB |
+| Public IP | Required (for inbound tunnel connections) |
+| Ports | 443 (HTTPS), 80 (ACME HTTP-01 challenge) |
+| Domain | A domain you control (e.g. `tunnel.example.com`) |
+
+## Quick Deploy with Docker
+
+```bash
+docker run -d \
+  --name binboi-server \
+  --restart unless-stopped \
+  -p 80:80 -p 443:443 -p 4443:4443 \
+  -v /etc/binboi:/etc/binboi \
+  -e BINBOI_DOMAIN=tunnel.example.com \
+  -e BINBOI_AUTH_TOKEN=change_me \
+  ghcr.io/binboi/server:latest
+```
+
+Your server will be available at `https://tunnel.example.com`.
+
+## Configuration File
+
+Create `/etc/binboi/server.yaml`:
+
+```yaml
+# Server identity
+domain: tunnel.example.com
+region: us-east
+
+# Tunnel ports
+http_port: 80
+https_port: 443
+tunnel_port: 4443
+
+# TLS — automatic via ACME (Let's Encrypt)
+tls:
+  acme: true
+  acme_email: admin@example.com
+  # Optional: use a private ACME CA instead of Let's Encrypt
+  # acme_url: https://ca.internal/acme/directory
+
+# Authentication
+auth:
+  # Static tokens (simple setup)
+  tokens:
+    - name: alice
+      token: tok_alice_abc123
+    - name: bob
+      token: tok_bob_xyz789
+  # Or enable browser-based OAuth
+  # oauth:
+  #   provider: github
+  #   client_id: ...
+  #   client_secret: ...
+
+# Subdomain policy
+subdomains:
+  reserved:             # Subdomains only specific tokens may use
+    myapp: tok_alice_abc123
+  random_length: 8      # Length of auto-generated subdomain identifiers
+
+# TCP tunnels
+tcp:
+  enabled: true
+  port_range: "10000-20000"
+
+# Logging
+log:
+  level: info
+  format: json
+  file: /var/log/binboi/server.log
+```
+
+Start the server:
+
+```bash
+binboi-server --config /etc/binboi/server.yaml
+```
+
+## Systemd Service
+
+```bash
+sudo tee /etc/systemd/system/binboi-server.service > /dev/null << 'EOF'
+[Unit]
+Description=Binboi Tunnel Server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/binboi-server --config /etc/binboi/server.yaml
+Restart=on-failure
+RestartSec=5
+User=binboi
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo systemctl daemon-reload
+sudo systemctl enable --now binboi-server
+```
+
+## DNS Setup
+
+Point your domain and a wildcard to the server's public IP:
+
+```
+tunnel.example.com       A    203.0.113.1
+*.tunnel.example.com     A    203.0.113.1
+```
+
+The wildcard record is required for subdomain routing (e.g. `myapp.tunnel.example.com`).
+
+## Reverse Proxy (Nginx / Caddy)
+
+If you are running other services on port 443, put Binboi behind a reverse proxy. Nginx example:
+
+```nginx
+stream {
+  map $ssl_preread_server_name $backend {
+    ~^.*\.tunnel\.example\.com  127.0.0.1:4443;
+    default                      127.0.0.1:8443;
+  }
+  server {
+    listen 443;
+    ssl_preread on;
+    proxy_pass $backend;
+  }
+}
+```
+
+## Connecting Clients to Your Server
+
+Each team member runs:
+
+```bash
+binboi login --server https://tunnel.example.com --token tok_alice_abc123
+```
+
+The server address and token are saved to `~/.binboi/config.json` automatically.
+
+## Monitoring
+
+The server exposes a health endpoint and metrics:
+
+```bash
+# Health check
+curl https://tunnel.example.com/_binboi/health
+
+# Prometheus metrics
+curl https://tunnel.example.com/_binboi/metrics
+```
+
+Metrics include active tunnel count, request throughput, error rates, and TLS certificate expiry.
+
+## Upgrading
+
+```bash
+docker pull ghcr.io/binboi/server:latest
+docker stop binboi-server && docker rm binboi-server
+# Re-run the docker run command above
+```
+
+Or if using the binary:
+
+```bash
+curl -fsSL https://dl.binboi.dev/latest/linux-amd64/binboi-server \
+  -o /usr/local/bin/binboi-server && chmod +x /usr/local/bin/binboi-server
+sudo systemctl restart binboi-server
+```

@@ -1,7 +1,3 @@
-/**
- * Root layout that establishes global typography, metadata, and the dark product theme.
- * Satoshi (Sans) ve Space Mono (Mono) entegrasyonu.
- */
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Space_Mono } from "next/font/google";
@@ -10,48 +6,45 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 
 
-// 1. Satoshi Font Yapılandırması
-// Not: Font dosyalarının app/fonts/ klasöründe olduğunu varsayıyoruz.
 const satoshi = localFont({
   src: [
     {
-      path: "./fonts/WEB/fonts/Satoshi-Light.woff2", // Klasör yapısına göre tam yol
-      weight: "300",
+      path: "./fonts/WEB/fonts/Satoshi-Variable.woff2",
+      weight: "300 900",
       style: "normal",
     },
-    // Not: Ekran görüntüsünde Regular görünmüyor, 
-    // ama varsa alt satırı ekle, yoksa Light'ı 400 olarak da tanımlayabilirsin.
     {
-      path: "./fonts/WEB/fonts/Satoshi-Light.woff2", 
+      path: "./fonts/WEB/fonts/Satoshi-VariableItalic.woff2",
+      weight: "300 900",
+      style: "italic",
+    },
+    {
+      path: "./fonts/WEB/fonts/Satoshi-Regular.woff2",
       weight: "400",
       style: "normal",
     },
     {
-      path: "./fonts/WEB/fonts/Satoshi-Bold.woff2",
-      weight: "700",
-      style: "normal",
-    },
-    {
-      path: "./fonts/WEB/fonts/Satoshi-Black.woff2",
-      weight: "900",
+      path: "./fonts/WEB/fonts/Satoshi-Medium.woff2",
+      weight: "500",
       style: "normal",
     },
   ],
   variable: "--font-satoshi",
+  display: "swap",
 });
 
-// 2. Space Mono Font Yapılandırması
+// Space Mono for code blocks
 const spaceMono = Space_Mono({
   subsets: ["latin"],
   weight: ["400", "700"],
   variable: "--font-space-mono",
+  display: "swap",
 });
 
-export const metadata: Metadata = (
-  {
-    
-  }
-);
+export const metadata: Metadata = {
+  title: "Binboi Docs",
+  description: "Self-hosted tunnels for developers.",
+};
 
 export default function RootLayout({
   children,
@@ -61,17 +54,12 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={cn(
-        "h-full dark", // Dark mode'u zorunlu kılıyoruz
-        satoshi.variable,
-        spaceMono.variable
-      )}
+      className={cn("h-full dark", satoshi.variable, spaceMono.variable)}
       suppressHydrationWarning
     >
       <body
         className={cn(
-          "min-h-full font-sans antialiased bg-[#000000] text-white",
-          "selection:text-white selection:bg-red-700"
+          "min-h-full font-sans antialiased bg-[#000000] text-white"
         )}
       >
         {children}

@@ -1,0 +1,125 @@
+# TCP Tunnels
+
+Binboi TCP tunnels forward raw TCP connections to a local port. Use them for databases, SSH servers, game servers, MQTT brokers, or any service that does not speak HTTP.
+
+## Basic Usage
+
+```bash
+binboi tcp 5432
+```
+
+Output:
+
+```
+Tunnel started
+  Public endpoint : tcp://abc123.binboi.dev:12345
+  Forwarding      : tcp://abc123.binboi.dev:12345 → localhost:5432
+  Status          : online
+```
+
+Connect to the tunnel from a remote machine:
+
+```bash
+psql -h abc123.binboi.dev -p 12345 -U myuser mydb
+```
+
+## Common Use Cases
+
+### PostgreSQL
+
+```bash
+binboi tcp 5432 --subdomain mydb
+# Connect: psql -h mydb.binboi.dev -p <assigned_port> -U user db
+```
+
+### MySQL / MariaDB
+
+```bash
+binboi tcp 3306
+```
+
+### SSH
+
+```bash
+binboi tcp 22 --subdomain myssh
+# Connect: ssh -p <assigned_port> user@myssh.binboi.dev
+```
+
+### Redis
+
+```bash
+binboi tcp 6379
+# Connect: redis-cli -h <host> -p <port>
+```
+
+## Reserved TCP Ports
+
+By default the Binboi server assigns a random port. Reserve a stable port using `--remote-port`:
+
+```bash
+binboi tcp 5432 --remote-port 15432
+# Always available at tcp://binboi.example.com:15432
+```
+
+Reserved ports must be configured on the server side within the allowed port range. See [Provider](/docs/provider) for `tcp.port_range` settings.
+
+## TLS over TCP
+
+Raw TCP tunnels are not TLS-terminated. If you want the TCP stream encrypted in transit between the Binboi server and clients, use the TLS tunnel variant:
+
+```bash
+binboi tls 443
+```
+
+See [TLS](/docs/tls) for details.
+
+## Access Control
+
+Restrict who can connect to your TCP tunnel using IP allowlists:
+
+```bash
+binboi tcp 5432 --allow-cidr 10.0.0.0/8 --allow-cidr 203.0.113.5/32
+```
+
+All other source IPs will receive a TCP reset.
+
+## Multiple Tunnels
+
+Run multiple TCP tunnels simultaneously:
+
+```bash
+# In separate terminal windows (or use a config file)
+binboi tcp 5432   # postgres
+binboi tcp 6379   # redis
+binboi tcp 27017  # mongodb
+```
+
+## Using a Config File
+
+Define multiple tunnels in `~/.binboi/config.yaml`:
+
+```yaml
+tunnels:
+  postgres:
+    proto: tcp
+    addr: 5432
+    remote_port: 15432
+  redis:
+    proto: tcp
+    addr: 6379
+```
+
+Start all defined tunnels at once:
+
+```bash
+binboi start --all
+```
+
+## Security Considerations
+
+TCP tunnels expose a raw socket to the internet. Always:
+
+- Use strong passwords or key-based auth at the application layer
+- Restrict access with `--allow-cidr` where possible
+- Avoid exposing databases on public-facing tunnels in production
+- Prefer short-lived tunnels for one-off remote access sessions

@@ -1,0 +1,114 @@
+# Request Inspection
+
+Binboi captures every HTTP request that passes through your tunnel and exposes it in a local web dashboard and via a REST API. You can inspect headers, bodies, response codes, and latency without adding any instrumentation to your service.
+
+## Accessing the Inspector
+
+When a tunnel is running, the local inspector starts automatically on port `4040`:
+
+```
+http://localhost:4040
+```
+
+Open it in any browser to see a live feed of all requests.
+
+## Dashboard Overview
+
+The inspector dashboard shows:
+
+- **Request list** — method, path, status code, duration, and timestamp for every request
+- **Request detail** — full headers, query parameters, and raw body
+- **Response detail** — status code, headers, and body
+- **Timeline** — visual breakdown of time spent in transit vs. your service
+
+## Replaying Requests
+
+Any captured request can be replayed with one click in the dashboard, or via the CLI:
+
+```bash
+# Replay the most recent request
+binboi replay last
+
+# Replay a specific request by ID
+binboi replay req_abc123
+
+# Replay with a modified header
+binboi replay req_abc123 --header "X-Debug: true"
+```
+
+Replaying sends an identical HTTP request to your local service. The response is captured as a new entry in the inspector.
+
+## Inspector API
+
+The inspector exposes a local REST API for scripting and automation:
+
+```bash
+# List recent requests
+curl http://localhost:4040/api/requests
+
+# Get a specific request
+curl http://localhost:4040/api/requests/req_abc123
+
+# Replay a request
+curl -X POST http://localhost:4040/api/requests/req_abc123/replay
+```
+
+Example response:
+
+```json
+{
+  "id": "req_abc123",
+  "tunnel_name": "myapp",
+  "method": "POST",
+  "uri": "/api/webhook",
+  "duration_ms": 42,
+  "status": 200,
+  "request": {
+    "headers": { "Content-Type": "application/json" },
+    "body": "{\"event\": \"push\"}"
+  },
+  "response": {
+    "status": 200,
+    "headers": { "Content-Type": "application/json" },
+    "body": "{\"ok\": true}"
+  }
+}
+```
+
+## Changing the Inspector Port
+
+If port 4040 is occupied, specify a different one:
+
+```bash
+binboi http 3000 --inspect-port 4041
+```
+
+## Disabling the Inspector
+
+To run without the local dashboard (e.g. in CI):
+
+```bash
+binboi http 3000 --no-inspect
+```
+
+## Filtering Requests
+
+Filter which requests are captured using path patterns or header values:
+
+```bash
+# Only capture POST requests to /webhook
+binboi http 3000 --capture-filter 'method=POST,path=/webhook*'
+
+# Exclude health check requests
+binboi http 3000 --capture-exclude 'path=/healthz'
+```
+
+## Request Retention
+
+By default the inspector keeps the last **500 requests** in memory. Adjust with:
+
+```bash
+binboi http 3000 --inspect-buffer 1000
+```
+
+Requests are not persisted to disk and are cleared when the tunnel stops.

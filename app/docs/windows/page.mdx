@@ -1,0 +1,133 @@
+# Windows Setup
+
+Install and configure Binboi on Windows 10 and Windows 11.
+
+## Install
+
+**WinGet (recommended)**
+
+Open PowerShell or Command Prompt and run:
+
+```powershell
+winget install Binboi.CLI
+```
+
+WinGet is included by default on Windows 11 and Windows 10 21H2+. It handles PATH setup automatically.
+
+**Scoop**
+
+```powershell
+scoop bucket add binboi https://github.com/binboi/scoop-bucket
+scoop install binboi
+```
+
+**Chocolatey**
+
+```powershell
+choco install binboi
+```
+
+**Manual installer**
+
+1. Download `binboi-windows-amd64.exe` from the [releases page](https://github.com/binboi/binboi/releases).
+2. Rename the file to `binboi.exe`.
+3. Move it to a directory on your PATH, for example `C:\Program Files\Binboi\`.
+4. Add that directory to your PATH if it is not already there (see below).
+
+**npm**
+
+```powershell
+npm install -g @binboi/cli
+```
+
+## Adding to PATH (Manual Install)
+
+1. Press **Win + S** and search for "Environment Variables".
+2. Click **Edit the system environment variables**.
+3. Click **Environment Variables...**.
+4. Under **System variables**, select **Path** and click **Edit**.
+5. Click **New** and enter the directory where you placed `binboi.exe` (e.g. `C:\Program Files\Binboi`).
+6. Click **OK** on all dialogs.
+7. Restart your terminal.
+
+## Verify the Installation
+
+```powershell
+binboi --version
+# binboi 1.0.0
+```
+
+## Login
+
+```powershell
+binboi login --server https://binboi.example.com
+```
+
+A browser window will open to complete authentication. Your token is stored at `%USERPROFILE%\.binboi\config.json`.
+
+Token-based login:
+
+```powershell
+binboi login --token YOUR_AUTH_TOKEN --server https://binboi.example.com
+```
+
+## Expose a Local Port
+
+```powershell
+binboi http 3000
+```
+
+## Running as a Windows Service
+
+Use NSSM (Non-Sucking Service Manager) to run Binboi as a persistent Windows service:
+
+```powershell
+# Install NSSM
+choco install nssm
+
+# Create the service
+nssm install BinboiTunnel "C:\Program Files\Binboi\binboi.exe"
+nssm set BinboiTunnel AppParameters "http 3000 --subdomain myapp"
+nssm set BinboiTunnel AppEnvironmentExtra "BINBOI_TOKEN=tok_abc123"
+nssm set BinboiTunnel Start SERVICE_AUTO_START
+
+# Start the service
+nssm start BinboiTunnel
+```
+
+Manage the service:
+
+```powershell
+# Check status
+Get-Service BinboiTunnel
+
+# Stop
+nssm stop BinboiTunnel
+
+# Remove
+nssm remove BinboiTunnel confirm
+```
+
+## Windows Subsystem for Linux (WSL)
+
+If you use WSL, install the Linux binary inside your WSL distribution:
+
+```bash
+curl -fsSL https://dl.binboi.dev/install.sh | sh
+```
+
+Tunnels from WSL can forward to services running inside WSL or on the Windows host via `$(hostname).local` or `172.x.x.x`.
+
+## Windows Firewall
+
+Binboi makes **outbound** connections only — no inbound firewall rules are required. If Windows Defender Firewall prompts you when first running `binboi`, click **Allow** to permit outbound connections.
+
+## Troubleshooting
+
+| Problem | Solution |
+|---|---|
+| `'binboi' is not recognized` | Re-open terminal after editing PATH, or use the full path |
+| SmartScreen warning | Click **More info → Run anyway** the first time |
+| Port 4040 already in use | `binboi http 3000 --inspect-port 4041` |
+| Antivirus blocks binary | Add an exclusion for `binboi.exe` in your AV settings |
+| Tunnel drops on laptop sleep | Use the Windows service approach to auto-reconnect |

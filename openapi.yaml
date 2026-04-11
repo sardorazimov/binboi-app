@@ -1,0 +1,948 @@
+openapi: 3.0.3
+
+info:
+  title: Binboi API
+  version: 1.0.0
+  description: |
+    The Binboi REST API lets you manage tunnels, inspect captured requests,
+    and administer your self-hosted server programmatically.
+
+    **Base URL:** `https://<your-server>/api/v1`
+
+    All endpoints that modify state or return user data require an
+    `Authorization: Bearer <token>` header. Tokens are issued via
+    `POST /api/v1/auth/login` or created in the dashboard.
+  contact:
+    name: Miransas
+    url: https://miransas.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://tunnel.example.com/api/v1
+    description: Self-hosted production server
+  - url: http://localhost:4040/api/v1
+    description: Local inspector API
+
+tags:
+  - name: tunnels
+    description: Create and manage tunnel sessions
+  - name: requests
+    description: Inspect and replay captured HTTP requests
+  - name: tokens
+    description: Manage authentication tokens
+  - name: team
+    description: Team member administration (admin role required)
+  - name: server
+    description: Server health and metrics
+
+components:
+  securitySchemes:
+    BearerToken:
+      type: http
+      scheme: bearer
+      description: Token issued by `POST /auth/login` or created in the dashboard
+
+  schemas:
+    # ── Shared ──────────────────────────────────────────────────────────────
+    Error:
+      type: object
+      required: [error, message]
+      properties:
+        error:
+          type: string
+          example: unauthorized
+        message:
+          type: string
+          example: Invalid or expired token
+        request_id:
+          type: string
+          example: req_01hx4abc
+
+    Pagination:
+      type: object
+      properties:
+        total:
+          type: integer
+        limit:
+          type: integer
+        offset:
+          type: integer
+        has_more:
+          type: boolean
+
+    # ── Tunnels ─────────────────────────────────────────────────────────────
+    TunnelProto:
+      type: string
+      enum: [http, tcp, tls]
+
+    TunnelStatus:
+      type: string
+      enum: [online, offline, error]
+
+    Tunnel:
+      type: object
+      required: [id, proto, status, created_at]
+      properties:
+        id:
+          type: string
+          example: tun_01hx4abc
+        proto:
+          $ref: '#/components/schemas/TunnelProto'
+        status:
+          $ref: '#/components/schemas/TunnelStatus'
+        public_url:
+          type: string
+          format: uri
+          example: https://myapp.tunnel.example.com
+        forwarding:
+          type: string
+          example: https://myapp.tunnel.example.com → localhost:3000
+        subdomain:
+          type: string
+          example: myapp
+        hostname:
+          type: string
+          example: dev.mycompany.com
+        local_addr:
+          type: string
+          example: localhost:3000
+        region:
+          type: string
+          example: us-east
+        request_count:
+          type: integer
+          example: 142
+        created_at:
+          type: string
+          format: date-time
+        metadata:
+          type: object
+          additionalProperties: true
+
+    CreateTunnelRequest:
+      type: object
+      required: [proto, addr]
+      properties:
+        proto:
+          $ref: '#/components/schemas/TunnelProto'
+        addr:
+          type: string
+          description: Local address to forward to (host:port or just port)
+          example: "3000"
+        subdomain:
+          type: string
+          example: myapp
+        hostname:
+          type: string
+          description: Custom domain (requires CNAME DNS record)
+          example: dev.mycompany.com
+        region:
+          type: string
+          example: eu-west
+        remote_port:
+          type: integer
+          description: Fixed remote port for TCP tunnels
+          example: 15432
+        inspect:
+          type: boolean
+          default: true
+          description: Enable local request inspector
+        basic_auth:
+          type: array
+          items:
+            type: string
+          description: "HTTP Basic Auth credentials in user:pass format"
+          example: ["alice:secret"]
+        allow_cidr:
+          type: array
+          items:
+            type: string
+            format: cidr
+          description: IP ranges allowed to connect
+          example: ["10.0.0.0/8", "203.0.113.0/24"]
+        response_headers:
+          type: object
+          additionalProperties:
+            type: string
+          description: Extra headers injected into every response
+        metadata:
+          type: object
+          additionalProperties: true
+
+    # ── Requests ─────────────────────────────────────────────────────────────
+    HttpHeaders:
+      type: object
+      additionalProperties:
+        type: string
+
+    CapturedRequest:
+      type: object
+      required: [id, tunnel_id, method, uri, status, duration_ms, captured_at]
+      properties:
+        id:
+          type: string
+          example: req_01hx4xyz
+        tunnel_id:
+          type: string
+          example: tun_01hx4abc
+        tunnel_name:
+          type: string
+          example: myapp
+        method:
+          type: string
+          example: POST
+        uri:
+          type: string
+          example: /api/webhook
+        status:
+          type: integer
+          example: 200
+        duration_ms:
+          type: integer
+          example: 43
+        captured_at:
+          type: string
+          format: date-time
+        request:
+          type: object
+          properties:
+            headers:
+              $ref: '#/components/schemas/HttpHeaders'
+            body:
+              type: string
+              description: Base64-encoded request body
+            body_text:
+              type: string
+              description: Raw body text (if valid UTF-8)
+        response:
+          type: object
+          properties:
+            status:
+              type: integer
+            headers:
+              $ref: '#/components/schemas/HttpHeaders'
+            body:
+              type: string
+              description: Base64-encoded response body
+            body_text:
+              type: string
+
+    ReplayResult:
+      type: object
+      properties:
+        replayed_request_id:
+          type: string
+          description: ID of the original request that was replayed
+        new_request_id:
+          type: string
+          description: ID of the newly captured replay request
+        status:
+          type: integer
+          example: 200
+        duration_ms:
+          type: integer
+
+    # ── Tokens ───────────────────────────────────────────────────────────────
+    TokenScope:
+      type: string
+      enum: [tunnel:create, tunnel:read, tunnel:delete, request:read, request:replay, admin]
+
+    Token:
+      type: object
+      required: [id, name, created_at]
+      properties:
+        id:
+          type: string
+          example: tok_01hx4abc
+        name:
+          type: string
+          example: ci-pipeline
+        scopes:
+          type: array
+          items:
+            $ref: '#/components/schemas/TokenScope'
+        last_used_at:
+          type: string
+          format: date-time
+          nullable: true
+        expires_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+
+    CreateTokenRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          example: ci-pipeline
+        scopes:
+          type: array
+          items:
+            $ref: '#/components/schemas/TokenScope'
+          default: [tunnel:create, tunnel:read, request:read]
+        expires_in:
+          type: string
+          description: Duration string (e.g. "30d", "8h"). Omit for non-expiring token.
+          example: 90d
+
+    CreatedToken:
+      allOf:
+        - $ref: '#/components/schemas/Token'
+        - type: object
+          required: [token]
+          properties:
+            token:
+              type: string
+              description: The raw token value. Shown only once at creation time.
+              example: tok_live_abc123xyz
+
+    # ── Team ─────────────────────────────────────────────────────────────────
+    MemberRole:
+      type: string
+      enum: [admin, member]
+
+    TeamMember:
+      type: object
+      required: [id, name, role, created_at]
+      properties:
+        id:
+          type: string
+          example: usr_01hx4abc
+        name:
+          type: string
+          example: Alice
+        email:
+          type: string
+          format: email
+          nullable: true
+        role:
+          $ref: '#/components/schemas/MemberRole'
+        active_tunnels:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+
+    # ── Health ───────────────────────────────────────────────────────────────
+    HealthStatus:
+      type: object
+      required: [status, version]
+      properties:
+        status:
+          type: string
+          enum: [ok, degraded]
+          example: ok
+        version:
+          type: string
+          example: 1.0.4-beta
+        uptime_seconds:
+          type: integer
+          example: 86400
+        active_tunnels:
+          type: integer
+          example: 12
+        region:
+          type: string
+          example: us-east
+        tls:
+          type: object
+          properties:
+            acme_enabled:
+              type: boolean
+            certificates_managed:
+              type: integer
+
+security:
+  - BearerToken: []
+
+paths:
+  # ── Auth ──────────────────────────────────────────────────────────────────
+  /auth/login:
+    post:
+      tags: [tokens]
+      summary: Log in and obtain an auth token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token]
+              properties:
+                token:
+                  type: string
+                  description: Pre-shared token configured on the server
+                  example: tok_alice_abc123
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  expires_at:
+                    type: string
+                    format: date-time
+                    nullable: true
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/logout:
+    post:
+      tags: [tokens]
+      summary: Revoke the current session token
+      responses:
+        '204':
+          description: Token revoked
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # ── Tunnels ───────────────────────────────────────────────────────────────
+  /tunnels:
+    get:
+      tags: [tunnels]
+      summary: List active tunnels
+      parameters:
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/TunnelStatus'
+        - name: proto
+          in: query
+          schema:
+            $ref: '#/components/schemas/TunnelProto'
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: Tunnel list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tunnels:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Tunnel'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    post:
+      tags: [tunnels]
+      summary: Create a new tunnel
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTunnelRequest'
+            examples:
+              http_tunnel:
+                summary: Basic HTTP tunnel
+                value:
+                  proto: http
+                  addr: "3000"
+                  subdomain: myapp
+                  region: us-east
+              tcp_tunnel:
+                summary: TCP tunnel for Postgres
+                value:
+                  proto: tcp
+                  addr: "5432"
+                  remote_port: 15432
+                  allow_cidr: ["10.0.0.0/8"]
+      responses:
+        '201':
+          description: Tunnel created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tunnel'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          description: Subdomain already in use
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /tunnels/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        example: tun_01hx4abc
+
+    get:
+      tags: [tunnels]
+      summary: Get a tunnel by ID
+      responses:
+        '200':
+          description: Tunnel detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tunnel'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags: [tunnels]
+      summary: Close and delete a tunnel
+      responses:
+        '204':
+          description: Tunnel closed
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /tunnels/{id}/requests:
+    get:
+      tags: [tunnels, requests]
+      summary: List captured requests for a specific tunnel
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: method
+          in: query
+          schema:
+            type: string
+            enum: [GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS]
+        - name: status_min
+          in: query
+          schema:
+            type: integer
+            minimum: 100
+            maximum: 599
+        - name: status_max
+          in: query
+          schema:
+            type: integer
+            minimum: 100
+            maximum: 599
+        - name: path
+          in: query
+          description: Filter by path prefix
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+            maximum: 500
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: Captured request list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requests:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CapturedRequest'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ── Requests ─────────────────────────────────────────────────────────────
+  /requests:
+    get:
+      tags: [requests]
+      summary: List all captured requests across all tunnels
+      parameters:
+        - name: tunnel_id
+          in: query
+          schema:
+            type: string
+        - name: method
+          in: query
+          schema:
+            type: string
+        - name: status_min
+          in: query
+          schema:
+            type: integer
+        - name: status_max
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+            maximum: 500
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: Captured requests
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requests:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CapturedRequest'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /requests/{id}:
+    get:
+      tags: [requests]
+      summary: Get full request/response detail for a captured request
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: req_01hx4xyz
+      responses:
+        '200':
+          description: Request detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CapturedRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /requests/{id}/replay:
+    post:
+      tags: [requests]
+      summary: Replay a captured request
+      description: |
+        Re-sends the original request to the local service. The response is
+        captured as a new request entry. Optionally override headers or the
+        request body before replaying.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: req_01hx4xyz
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                headers:
+                  $ref: '#/components/schemas/HttpHeaders'
+                  description: Header overrides merged with the original headers
+                body:
+                  type: string
+                  description: Replacement request body (plain string)
+      responses:
+        '200':
+          description: Replay result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReplayResult'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '503':
+          description: Local service unreachable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # ── Tokens ────────────────────────────────────────────────────────────────
+  /tokens:
+    get:
+      tags: [tokens]
+      summary: List all tokens for the authenticated user
+      responses:
+        '200':
+          description: Token list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tokens:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Token'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    post:
+      tags: [tokens]
+      summary: Create a new token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTokenRequest'
+            example:
+              name: ci-pipeline
+              scopes: [tunnel:create, tunnel:read, request:read]
+              expires_in: "90d"
+      responses:
+        '201':
+          description: Token created. The raw `token` value is shown only once.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreatedToken'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /tokens/{id}:
+    delete:
+      tags: [tokens]
+      summary: Revoke a token by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: tok_01hx4abc
+      responses:
+        '204':
+          description: Token revoked
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ── Team ──────────────────────────────────────────────────────────────────
+  /team/members:
+    get:
+      tags: [team]
+      summary: List team members (admin only)
+      responses:
+        '200':
+          description: Member list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  members:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TeamMember'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+    post:
+      tags: [team]
+      summary: Add a team member or issue a managed token (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name:
+                  type: string
+                  example: Bob
+                email:
+                  type: string
+                  format: email
+                role:
+                  $ref: '#/components/schemas/MemberRole'
+                  default: member
+      responses:
+        '201':
+          description: Member added
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/TeamMember'
+                  - type: object
+                    properties:
+                      token:
+                        type: string
+                        description: Initial token for the new member (shown once)
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /team/members/{id}:
+    delete:
+      tags: [team]
+      summary: Remove a team member and revoke all their tokens (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: usr_01hx4abc
+      responses:
+        '204':
+          description: Member removed
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ── Server ────────────────────────────────────────────────────────────────
+  /health:
+    get:
+      tags: [server]
+      summary: Server health check
+      security: []
+      responses:
+        '200':
+          description: Server is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+        '503':
+          description: Server is degraded or starting up
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+
+  /metrics:
+    get:
+      tags: [server]
+      summary: Prometheus-format metrics
+      security: []
+      responses:
+        '200':
+          description: Metrics in Prometheus text format
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |
+                # HELP binboi_active_tunnels Number of currently active tunnels
+                # TYPE binboi_active_tunnels gauge
+                binboi_active_tunnels 12
+
+                # HELP binboi_requests_total Total HTTP requests forwarded
+                # TYPE binboi_requests_total counter
+                binboi_requests_total{status="2xx"} 98432
+                binboi_requests_total{status="4xx"} 312
+                binboi_requests_total{status="5xx"} 17
+
+                # HELP binboi_tunnel_duration_seconds Tunnel session duration
+                # TYPE binboi_tunnel_duration_seconds histogram
+                binboi_tunnel_duration_seconds_bucket{le="60"} 24
+                binboi_tunnel_duration_seconds_bucket{le="3600"} 89
+                binboi_tunnel_duration_seconds_bucket{le="+Inf"} 142
+
+# ── Shared response references ─────────────────────────────────────────────
+components:
+  responses:
+    Unauthorized:
+      description: Missing or invalid token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: unauthorized
+            message: Invalid or expired token
+
+    Forbidden:
+      description: Insufficient permissions (admin role required)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: forbidden
+            message: Admin role required for this action
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: not_found
+            message: Tunnel not found

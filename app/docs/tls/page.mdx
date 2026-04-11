@@ -1,0 +1,86 @@
+# TLS / HTTPS
+
+Every Binboi HTTP tunnel is served over HTTPS by default. TLS termination happens at the Binboi server — your local service receives plain HTTP and never needs to handle certificates itself.
+
+## How It Works
+
+```
+Client (browser)
+    │  HTTPS (TLS 1.3)
+    ▼
+Binboi Server  ──  TLS terminated here, certificate auto-provisioned
+    │  Plain HTTP
+    ▼
+Your localhost:3000
+```
+
+The Binboi server provisions and renews TLS certificates automatically using ACME (Let's Encrypt or a custom CA you configure). You get valid, trusted HTTPS with zero configuration.
+
+## Starting an HTTPS Tunnel
+
+```bash
+binboi http 3000
+# Tunnel URL: https://abc123.binboi.dev
+```
+
+The `https://` URL is always the primary tunnel URL. An `http://` redirect is also created and forwards to HTTPS automatically.
+
+## Custom Domains
+
+You can attach your own domain to a tunnel by adding a CNAME record in your DNS provider, then passing `--hostname`:
+
+```bash
+binboi http 3000 --hostname dev.mycompany.com
+```
+
+Binboi will provision a certificate for `dev.mycompany.com` on first use. Certificate issuance takes up to 60 seconds on the first connection; subsequent starts reuse the cached certificate.
+
+## Disabling HTTPS Redirect
+
+If you need the plain HTTP endpoint without forced redirect (rare — not recommended for production):
+
+```bash
+binboi http 3000 --no-https-redirect
+```
+
+## Mutual TLS (mTLS)
+
+For services that require client certificates, you can enable mTLS verification at the Binboi server edge:
+
+```bash
+binboi http 3000 \
+  --mutual-tls-ca /path/to/ca.crt
+```
+
+Requests without a valid client certificate will receive a `403` response before reaching your local service.
+
+## End-to-End TLS (TLS Passthrough)
+
+If your local service already terminates TLS itself and you want Binboi to forward the raw TLS connection without decrypting it:
+
+```bash
+binboi tls 443
+```
+
+This creates a TCP tunnel that forwards TLS directly to your local port. The Binboi server does not inspect or terminate the connection; your service handles the certificate.
+
+## Certificate Details
+
+| Property | Value |
+|---|---|
+| Protocol | TLS 1.2 / 1.3 |
+| Certificate Authority | Let's Encrypt (default) or custom ACME CA |
+| Renewal | Automatic, 30 days before expiry |
+| Key type | ECDSA P-256 |
+
+## Self-Hosted CA
+
+When running your own Binboi server, you can configure an internal CA or use a private ACME endpoint. See the [Provider guide](/docs/provider) for `tls.acme_url` and `tls.ca_cert` settings.
+
+## Troubleshooting
+
+| Problem | Solution |
+|---|---|
+| `Certificate not trusted` | Ensure your Binboi server domain has a public DNS record and port 80 is reachable for ACME HTTP-01 challenge |
+| `ERR_CERT_COMMON_NAME_INVALID` | Custom domain CNAME may not have propagated yet; wait ~5 minutes |
+| Certificate stuck provisioning | Run `binboi tls renew --hostname your.domain` to force renewal |

@@ -1,0 +1,135 @@
+# Installation
+
+Install the Binboi CLI on your machine. The CLI is a single static binary with no runtime dependencies.
+
+## System Requirements
+
+| Requirement | Minimum |
+|---|---|
+| OS | macOS 12+, Linux (glibc 2.17+), Windows 10+ |
+| Architecture | x86_64, arm64 |
+| Disk | ~15 MB |
+
+---
+
+## macOS
+
+**Homebrew (recommended)**
+
+```bash
+brew install binboi/tap/binboi
+```
+
+**Direct download**
+
+```bash
+# Apple Silicon (M1/M2/M3)
+curl -fsSL https://dl.binboi.dev/latest/darwin-arm64/binboi -o /usr/local/bin/binboi
+chmod +x /usr/local/bin/binboi
+
+# Intel
+curl -fsSL https://dl.binboi.dev/latest/darwin-amd64/binboi -o /usr/local/bin/binboi
+chmod +x /usr/local/bin/binboi
+```
+
+See the [macOS guide](/docs/mac) for Gatekeeper and PATH notes.
+
+---
+
+## Linux
+
+**Install script (recommended)**
+
+```bash
+curl -fsSL https://dl.binboi.dev/install.sh | sh
+```
+
+The script detects your architecture, downloads the correct binary to `/usr/local/bin/binboi`, and sets execute permissions.
+
+**Manual download**
+
+```bash
+# x86_64
+curl -fsSL https://dl.binboi.dev/latest/linux-amd64/binboi -o /usr/local/bin/binboi
+chmod +x /usr/local/bin/binboi
+
+# arm64
+curl -fsSL https://dl.binboi.dev/latest/linux-arm64/binboi -o /usr/local/bin/binboi
+chmod +x /usr/local/bin/binboi
+```
+
+**APT (Debian / Ubuntu)**
+
+```bash
+echo "deb [trusted=yes] https://apt.binboi.dev stable main" \
+  | sudo tee /etc/apt/sources.list.d/binboi.list
+sudo apt update && sudo apt install binboi
+```
+
+See the [Linux guide](/docs/linux) for systemd service setup.
+
+---
+
+## Windows
+
+**WinGet**
+
+```powershell
+winget install Binboi.CLI
+```
+
+**Scoop**
+
+```powershell
+scoop bucket add binboi https://github.com/binboi/scoop-bucket
+scoop install binboi
+```
+
+**Manual installer**
+
+Download `binboi-windows-amd64.exe` from the [releases page](https://github.com/binboi/binboi/releases), rename it to `binboi.exe`, and place it somewhere on your `PATH` (e.g. `C:\Program Files\Binboi\`).
+
+---
+
+## npm (all platforms)
+
+If you already have Node.js 18+, you can install the CLI wrapper via npm:
+
+```bash
+npm install -g @binboi/cli
+```
+
+This downloads the correct platform binary and wires up the `binboi` command automatically.
+
+---
+
+## Verify the Installation
+
+```bash
+binboi --version
+# binboi 1.0.0
+
+binboi --help
+```
+
+---
+
+## Upgrading
+
+```bash
+# Homebrew
+brew upgrade binboi
+
+# npm
+npm update -g @binboi/cli
+
+# Install script (re-run)
+curl -fsSL https://dl.binboi.dev/install.sh | sh
+```
+
+---
+
+## Next Steps
+
+- [Quick Start](/docs/quick_start) — open your first tunnel
+- [Authentication](/docs/authentication) — log in to your Binboi server

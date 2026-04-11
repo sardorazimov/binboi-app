@@ -1,0 +1,145 @@
+# HTTP Tunnels
+
+HTTP tunnels are the core feature of Binboi. They forward public HTTPS traffic from a Binboi URL to a local HTTP port on your machine. This page covers how they work, subdomain routing, and all available configuration options.
+
+## How It Works
+
+When you run `binboi http 3000`, the following happens:
+
+1. The CLI authenticates to your Binboi server and opens a persistent, multiplexed connection.
+2. The server assigns a public subdomain (e.g. `abc123.binboi.dev`) and provisions a TLS certificate.
+3. Incoming HTTPS requests to that subdomain are accepted at the server edge.
+4. Requests are forwarded over the tunnel connection to `localhost:3000` on your machine.
+5. Responses travel back the same way and are returned to the caller.
+
+```
+Caller ──HTTPS──▶ abc123.binboi.dev ──tunnel──▶ localhost:3000
+       ◀──────────────────────────────────────────────────────
+```
+
+No ports need to be opened on your firewall — the tunnel is an **outbound** connection from your machine.
+
+## Starting a Tunnel
+
+```bash
+binboi http 3000
+```
+
+Forward to any host:port combination (not just localhost):
+
+```bash
+binboi http 192.168.1.50:8080
+```
+
+## Subdomain Routing
+
+By default, Binboi assigns a random subdomain each session. To get a stable URL, use `--subdomain`:
+
+```bash
+binboi http 3000 --subdomain myapp
+# Always: https://myapp.binboi.dev
+```
+
+Subdomains are unique per server. If another session holds your requested subdomain, the command will error. Reserve a subdomain permanently in the server dashboard to guarantee ownership.
+
+## Custom Domains
+
+Attach your own domain by creating a CNAME DNS record and passing `--hostname`:
+
+```bash
+# DNS: dev.mycompany.com CNAME tunnel.binboi.dev
+binboi http 3000 --hostname dev.mycompany.com
+```
+
+Binboi provisions a TLS certificate for your custom domain automatically on the first connection.
+
+## HTTP/HTTPS Behavior
+
+Both `http://` and `https://` variants are served by default. HTTP requests are redirected to HTTPS. To allow plain HTTP without redirect:
+
+```bash
+binboi http 3000 --no-https-redirect
+```
+
+## Request Headers
+
+Binboi adds the following headers to every forwarded request:
+
+| Header | Value |
+|---|---|
+| `X-Forwarded-For` | Original client IP |
+| `X-Forwarded-Proto` | `https` |
+| `X-Forwarded-Host` | Public hostname (e.g. `myapp.binboi.dev`) |
+| `X-Binboi-Tunnel-Id` | Unique ID for this tunnel session |
+
+## Basic Auth
+
+Add HTTP Basic Authentication at the Binboi edge — requests without credentials are rejected before reaching your local service:
+
+```bash
+binboi http 3000 --basic-auth "user:password"
+```
+
+Multiple credentials:
+
+```bash
+binboi http 3000 \
+  --basic-auth "alice:pass1" \
+  --basic-auth "bob:pass2"
+```
+
+## IP Allowlist
+
+Restrict access to specific IP ranges:
+
+```bash
+binboi http 3000 \
+  --allow-cidr 10.0.0.0/8 \
+  --allow-cidr 203.0.113.0/24
+```
+
+## Response Headers
+
+Inject custom response headers for every response from your tunnel:
+
+```bash
+binboi http 3000 \
+  --response-header "Access-Control-Allow-Origin: *" \
+  --response-header "X-Frame-Options: DENY"
+```
+
+## Compression
+
+Enable gzip compression for text responses:
+
+```bash
+binboi http 3000 --compress
+```
+
+## Multiple Tunnels
+
+Run several tunnels simultaneously using a config file (`~/.binboi/config.yaml`):
+
+```yaml
+tunnels:
+  frontend:
+    proto: http
+    addr: 3000
+    subdomain: myapp-frontend
+  backend:
+    proto: http
+    addr: 8080
+    subdomain: myapp-api
+```
+
+Start all at once:
+
+```bash
+binboi start --all
+# or start specific tunnels:
+binboi start frontend backend
+```
+
+## Inspecting Traffic
+
+A local request inspector starts at `http://localhost:4040` when any HTTP tunnel is running. See [Requests](/docs/requests) for full details.
