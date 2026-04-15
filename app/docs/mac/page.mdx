@@ -1,110 +1,129 @@
-# macOS Setup
+# Install Binboi via Homebrew
 
-This guide covers everything you need to run Binboi on macOS, including Gatekeeper handling, shell configuration, and running tunnels as a background service.
+The recommended install path on macOS. Homebrew manages upgrades and puts
+`binboi` on your `PATH` automatically.
+
+## Prerequisites
+
+- macOS (Apple Silicon or Intel)
+- [Homebrew](https://brew.sh) installed
+
+```bash
+# Install Homebrew if you don't have it
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/homebrew/install/HEAD/install.sh)"
+```
 
 ## Install
 
-**Homebrew (recommended)**
+```bash
+brew tap binboi/tap
+brew install binboi
+```
+
+Or in a single command:
 
 ```bash
 brew install binboi/tap/binboi
 ```
 
-Homebrew handles PATH configuration automatically and makes upgrades easy with `brew upgrade binboi`.
-
-**Direct binary**
+## Verify installation
 
 ```bash
-# Apple Silicon (M1 / M2 / M3)
-curl -fsSL https://dl.binboi.dev/latest/darwin-arm64/binboi \
-  -o /usr/local/bin/binboi && chmod +x /usr/local/bin/binboi
-
-# Intel
-curl -fsSL https://dl.binboi.dev/latest/darwin-amd64/binboi \
-  -o /usr/local/bin/binboi && chmod +x /usr/local/bin/binboi
+binboi version
 ```
 
-## Gatekeeper
+Expected output:
 
-The first time you run a binary downloaded outside the App Store, macOS may show:
+```
+0.4.0
+```
 
-> "binboi" cannot be opened because it is from an unidentified developer.
-
-Remove the quarantine attribute:
+## Upgrade
 
 ```bash
-xattr -d com.apple.quarantine /usr/local/bin/binboi
+brew upgrade binboi
 ```
 
-Alternatively, go to **System Settings → Privacy & Security** and click **Allow Anyway**. Binaries installed via Homebrew or npm are never quarantined.
-
-## Shell Configuration
-
-If `binboi` is not found after a manual install, add `/usr/local/bin` to your PATH:
+## Uninstall
 
 ```bash
-# zsh (default on macOS Catalina+)
-echo 'export PATH="/usr/local/bin:$PATH"' >> ~/.zshrc && source ~/.zshrc
-
-# bash
-echo 'export PATH="/usr/local/bin:$PATH"' >> ~/.bash_profile && source ~/.bash_profile
+brew uninstall binboi
+brew untap binboi/tap   # optional — removes the tap entirely
 ```
 
-## Login
+## First tunnel
+
+**1. Log in with your access token**
+
+Create a token at <https://binboi.com/dashboard/access-tokens>, then:
 
 ```bash
-binboi login --server https://binboi.example.com
+binboi login --token <your-token>
 ```
 
-Your token is stored at `~/.binboi/config.json` and reused for every future command.
+Output:
 
-## Running as a Background Service (launchd)
+```
+Authenticated as Sardor Azimov <sardor@example.com>
+Plan: FREE
+Token: bb_... (flag)
+Server: binboi.com:8081
+Saved to /Users/you/.binboi/config.json
+```
 
-Create a launchd plist to start a tunnel automatically on login:
+**2. Expose a local port**
 
 ```bash
-mkdir -p ~/Library/LaunchAgents
-cat > ~/Library/LaunchAgents/dev.binboi.tunnel.plist << 'EOF'
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
-  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-  <key>Label</key><string>dev.binboi.tunnel</string>
-  <key>ProgramArguments</key>
-  <array>
-    <string>/usr/local/bin/binboi</string>
-    <string>http</string>
-    <string>3000</string>
-    <string>--subdomain</string>
-    <string>myapp</string>
-  </array>
-  <key>RunAtLoad</key><true/>
-  <key>KeepAlive</key><true/>
-  <key>StandardOutPath</key><string>/tmp/binboi.log</string>
-  <key>StandardErrorPath</key><string>/tmp/binboi.err</string>
-</dict>
-</plist>
-EOF
+# Expose localhost:3000 with a random subdomain
+binboi http 3000
 
-launchctl load ~/Library/LaunchAgents/dev.binboi.tunnel.plist
+# Expose localhost:5173 with a custom subdomain
+binboi http 5173 myapp
 ```
 
-Check status and stop the service:
-
-```bash
-launchctl list | grep binboi
-tail -f /tmp/binboi.log
-
-# Stop
-launchctl unload ~/Library/LaunchAgents/dev.binboi.tunnel.plist
-```
+Your app is live at `https://myapp.binboi.com`.
 
 ## Troubleshooting
 
-| Problem | Solution |
-|---|---|
-| `command not found: binboi` | Check PATH, re-run `source ~/.zshrc` |
-| Gatekeeper blocks binary | `xattr -d com.apple.quarantine $(which binboi)` |
-| Tunnel drops after sleep | Use the launchd service or disable automatic sleep |
-| Port 4040 already in use | `binboi http 3000 --inspect-port 4041` |
+**`Error: No formulae found in taps`**
+
+The tap may not be initialised yet. Run:
+
+```bash
+brew tap binboi/tap
+brew install binboi
+```
+
+**`brew upgrade binboi` does nothing**
+
+You are already on the latest version. Check with:
+
+```bash
+binboi version
+brew info binboi
+```
+
+**`binboi: command not found` after install**
+
+Homebrew's prefix may not be on your `PATH`. For Apple Silicon Macs:
+
+```bash
+echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
+eval "$(/opt/homebrew/bin/brew shellenv)"
+```
+
+For Intel Macs:
+
+```bash
+echo 'eval "$(/usr/local/bin/brew shellenv)"' >> ~/.zprofile
+eval "$(/usr/local/bin/brew shellenv)"
+```
+
+**Verify the formula locally**
+
+```bash
+brew test binboi
+```
+
+This runs `binboi version` against the installed binary, which is the same
+check the formula's `test do` block uses.
